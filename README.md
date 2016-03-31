@@ -1,4 +1,4 @@
 # gt-train
 
 
-Start with index.html
+Start with loginPage.html
