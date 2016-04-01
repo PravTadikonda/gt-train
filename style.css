@@ -1,13 +1,17 @@
 h1 {
-    color: black;
+    /*background-color: #CFB53B;*/
+    background-color: #000066;
+    /*color: black;*/
+    color: white;
     border-bottom: 5px solid black;
     padding-bottom: 10px;
-    background-color: #CFB53B;
 
 }
 
 body {    
-	background-color: #e1d084;
+	/*background-color: #e1d084;*/
+	background-color: #cce6ff;
+	/*background-color: #595959;*/
 	color: #262626;
 	font-size: 20;
 }
@@ -18,6 +22,7 @@ button {
 	font-size: 15;
 	margin-left: 15px;
 	margin-right: 15px;
+	/*background-color: #ffffb3;*/
 }
 
 p.title {
