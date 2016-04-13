@@ -2,5 +2,6 @@
 	$username = 'root';
 	$password = 'password';
 	$host = 'localhost';
-	$database = 'GTTrain';
+	$database = 'testDB';
 ?>
+
