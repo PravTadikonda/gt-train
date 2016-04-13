@@ -12,7 +12,8 @@ include 'dbinfo.php';
 <body >
 <center> 
 <h1>GEORGIA TECH TRAIN</h1>
-<br/><br/>
+
+<a href="./ChooseFuncCust.php"><img src="buzz.png" width="128" height="128"></a>
 
 <form action="\" method="POST" id = "mainBlock"> 
 <b><p class = "title">VIEW TRAIN SCHEDULE</p></b>
@@ -20,7 +21,7 @@ include 'dbinfo.php';
 <table>
 	<tr>
 		<td><font size="4"/>Train Number:</td>
-		<td><input name="reservationID" maxlength="20"/></td>
+		<td><input name="trainNum" maxlength="20"/></td>
 	</tr>
 </table>
 
@@ -30,7 +31,6 @@ include 'dbinfo.php';
 </form> 
 
 <br>
-<a href="./ChooseFuncCust.php"><img src="buzz.png" width="128" height="128"></a>
 
 <?php
 

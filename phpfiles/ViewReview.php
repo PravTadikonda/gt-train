@@ -1,4 +1,5 @@
 <?php
+session_start();
 include 'dbinfo.php';
 ?>
 
@@ -13,30 +14,66 @@ include 'dbinfo.php';
 <center> 
 <h1>GEORGIA TECH TRAIN</h1>
 
-<br/><br/>
+<a href="./ChooseFuncCust.php"><img src="buzz.png" width="128" height="128"></a>
 
-<form action=\"\" method=\"POST\" id = "mainBlock"> 
+<form action="" method="POST"> 
 <b><p class = "title">VIEW REVIEWS</p></b>
-<!-- <p font-size = "5"> Your school email ends with .edu</p> -->
+
 <table>
 	<tr>
 		<td><font size="4"/>Train Number:</td>
-		<td><input name="trainNumber" type="email"/></td>
+		<td><input name="trainNumber"/></td>
 	</tr>
 </table>
 
 <p>
-	<a href="#"><button type="button">Search</button></a>
+	<input class="button" type="submit" name="submit" value="Search"/>
 </p>
 </form> 
 
 <br>
-<a href="./ChooseFuncCust.php"><img src="buzz.png" width="128" height="128"></a>
 
 <?php
 
-mysql_connect($host,$username,$password) or die("Unable to connect");
-mysql_select_db($database) or die("Unable to select database");
+if(isset($_POST['trainNumber'])) {
+	$trainNum = $_POST['trainNumber'];
+
+	mysql_connect($host,$username,$password) or die("Unable to connect");
+	mysql_select_db($database) or die("Unable to select database");
+
+	if (empty($trainNum)) {
+		echo "<font color=\"red\">";
+		echo "Put in a train number";
+		echo "</font>";
+	} else {
+		$sql = "SELECT * FROM Review WHERE Train_Number = \"$trainNum\"";
+		$result = mysql_query($sql) or die(mysql_error());
+		if (mysql_num_rows($result) == 0) {
+			echo "<font color=\"red\">";
+			echo "A review for that train number does not exist";
+			echo "</font>";
+		} else {
+			echo "<table border=\"1\" bordercolor=\"black\">";
+			echo "<tr>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Review Number</td>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Rating</td>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Comment</td>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Customer</td>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Train Number</td>";
+			echo "</tr>";
+			while($row = mysql_fetch_array($result)) {
+				echo "<tr>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Review_Num]</td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Rating]</td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Comment]</td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Cust_User]</td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Train_Number]</td>";
+				echo "</tr>";
+			}
+		}
+		echo "</table>";
+	}
+}
 
 ?>
 </center>
