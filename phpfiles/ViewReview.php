@@ -55,19 +55,13 @@ if(isset($_POST['trainNumber'])) {
 		} else {
 			echo "<table border=\"1\" bordercolor=\"black\">";
 			echo "<tr>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Review Number</td>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Rating</td>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Comment</td>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Customer</td>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Train Number</td>";
 			echo "</tr>";
 			while($row = mysql_fetch_array($result)) {
 				echo "<tr>";
-					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Review_Num]</td>";
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Rating]</td>";
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Comment]</td>";
-					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Cust_User]</td>";
-					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Train_Number]</td>";
 				echo "</tr>";
 			}
 		}
