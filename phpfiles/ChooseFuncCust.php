@@ -30,6 +30,9 @@ include 'dbinfo.php';
 		<td align="center"><a href="./CancelReservation.php"><font size="4"/>Cancel a Reservation</a></td>
 	</tr>
 	<tr>
+		<td align="center"><a href="./ViewReview.php"><font size="4"/>View Reviews </a></td>
+	</tr>
+	<tr>
 		<td align="center"><a href="./GiveReview.php"><font size="4"/>Give a Review </a></td>
 	</tr>
 	<tr>

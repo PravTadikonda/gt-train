@@ -18,7 +18,7 @@ include 'dbinfo.php';
 
 <form action="" method="POST"> 
 <b><p class = "title"> ADD SCHOOL INFO</p></b>
-<!-- <p font-size = "5"> Your school email ends with .edu</p> -->
+
 <table>
 	<tr>
 		<td><font size="4"/>School E-mail Address:</td>
