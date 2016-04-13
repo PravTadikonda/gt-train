@@ -47,7 +47,7 @@ if(isset($_POST['user'],$_POST['pass'])){
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
 
-	$sql= "SELECT Cust_User, Password FROM Customer NATURAL JOIN User WHERE Customer.Cust_User=\"$user\" AND User.Password=\"$pass\"";
+	$sql= "SELECT Cust_User, Password FROM Customer NATURAL JOIN User WHERE Customer.Cust_User=User.Username AND Customer.Cust_User=\"$user\" AND User.Password=\"$pass\"";
 	$result = mysql_query($sql) or die(mysql_error());
 	if (mysql_num_rows($result) == 1) {
 		// header("Location:ChooseFuncCust.php");
@@ -57,7 +57,7 @@ if(isset($_POST['user'],$_POST['pass'])){
 		echo "</font>";
 		echo "</a>";
 	} else {
-		$sql2= "SELECT Username, Password FROM Manager NATURAL JOIN User WHERE Manager.Mgr_User=\"$user\" AND User.Password=\"$pass\"";
+		$sql2= "SELECT Mgr_User, Password FROM Manager NATURAL JOIN User WHERE Manager.Mgr_User=User.Username AND Manager.Mgr_User=\"$user\" AND User.Password=\"$pass\"";
 		$result2 = mysql_query($sql2) or die(mysql_error());
 		if (mysql_num_rows($result2) == 1) {
 			// header("Location:ChooseFuncMang.php");

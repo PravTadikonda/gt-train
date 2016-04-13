@@ -45,7 +45,6 @@ if(isset($_POST['trainNum'])) {
 		echo "Put in a train number";
 		echo "</font>";
 	} else {
-		//$sql = "SELECT * FROM Review WHERE Train_Number = \"$trainNum\"";
 		$sql = "SELECT * FROM (Stop JOIN Station) WHERE Train_Number=\"$trainNum\"";
 		$result = mysql_query($sql) or die(mysql_error());
 		if (mysql_num_rows($result) == 0) {
