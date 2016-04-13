@@ -42,6 +42,7 @@ include 'dbinfo.php';
 if(isset($_POST['user'],$_POST['pass'])){
 	$user = $_POST['user'];
 	$pass = $_POST['pass'];
+	$_SESSION['userID']= $user;
 
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
