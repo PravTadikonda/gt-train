@@ -1,4 +1,5 @@
 <?php
+session_start();
 include 'dbinfo.php';
 ?>
 
@@ -26,7 +27,6 @@ include 'dbinfo.php';
 </table>
 
 <p>
-	<!-- <a href="#"><button type="button">Search</button></a> -->
 	<input class="button" type="submit" name="search" value="Search"/>
 </p>
 </form> 
@@ -37,6 +37,7 @@ include 'dbinfo.php';
 
 if(isset($_POST['reservationID'])) {
 	$reservationID = $_POST['reservationID'];
+	$user = $_SESSION['userID'];
 	
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
@@ -47,13 +48,72 @@ if(isset($_POST['reservationID'])) {
 		echo "</font>";
 	} else {
 		//when we delete reservation, is the ID gone too?
-		$sql = "SELECT * FROM Reserves WHERE Reservation_ID = \"$reservationID\"";
+		$sql = "SELECT * FROM Reserves JOIN Reservation WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND 
+			Reserves.Reservation_ID = \"$reservationID\" AND Reservation.Cust_User = \"$user\"";
 		$result = mysql_query($sql) or die("The reservation ID does not exist");
+		if(mysql_num_rows($result) == 0) {
+			echo "<font color=\"red\">";
+			echo "This reservation ID does not exist for you.";
+			echo "</font>";
+		} else {
+			echo "<form action=\"\" method=\"POST\">";
+			echo "<table border=\"1\" bordercolor=\"black\">";
+			echo "<tr>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Select</td>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Train Number</td>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Duration</td>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Depart From</td>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Arrives At</td>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Class</td>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Price</td>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Number of Baggages</td>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Passanger Name</td>";
+			echo "</tr>";
+			$rowNum = 1;
+			while($row = mysql_fetch_array($result)) {
+				echo "<tr>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"reserve\" value=\"$rowNum\"/></td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Train_Number]</td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Departs_From]</td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Arrives_At]</td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Class]</td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Number_Baggages]</td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Passanger_Name]</td>";
+				echo "</tr>";
+				$rowNum = $rowNum + 1;
+			}
+			echo "</table>";
+			// $reserveNum = $_POST["reserve"];
+			// $_SESSION['reserveNum'] = $reserveNum;
+			// echo "$reserveNum";
+
+			echo "</br><a href=\"./ChooseFuncCust.php\"><button type=\"button\">Back</button></a>";
+			echo "<input class=\"button\" type=\"submit\" name=\"next\" value=\"Next\"/>";
+			// echo "<a href=\"./UpdateReservation2.php\"><button type=\"button\">Next</button></a>";
+			echo "</form>";
+		}
+	}
+}
 
 
-		echo "<table border=\"1\" bordercolor=\"black\">";
+if(isset($_POST["reserve"])) {
+	$reserveNum = $_POST["reserve"];
+
+	$_SESSION['reserveNum'] = $reserveNum;
+	// echo "$reserveNum";
+
+	mysql_connect($host,$username,$password) or die("Unable to connect");
+	mysql_select_db($database) or die("Unable to select database");
+	
+	// $sql = "SELECT * FROM Reserves JOIN Reservation WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND 
+	// 		Reserves.Reservation_ID = \"$reservationID\" AND Reservation.Cust_User = \"$user\"";
+	// $result = mysql_query($sql) or die("The reservation ID does not exist");
+	
+	//how to get that row we just selected
+	echo "<table border=\"1\" bordercolor=\"black\">";
 		echo "<tr>";
-			echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Select</td>";
 			echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Train Number</td>";
 			echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Duration</td>";
 			echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Depart From</td>";
@@ -63,29 +123,54 @@ if(isset($_POST['reservationID'])) {
 			echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Number of Baggages</td>";
 			echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Passanger Name</td>";
 		echo "</tr>";
-		while($row = mysql_fetch_array($result)) {
-			echo "<tr>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"q1\" value=\"5\"/></td>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Train_Number]</td>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Departs_From]</td>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Arrives_At]</td>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Class]</td>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Number_Baggages]</td>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Passanger_Name]</td>";
-			echo "</tr>";
-		}
+		// $rowNum = 1;
+		// while($row = mysql_fetch_array($result)) {
+		// 	if ($rowNum == $reserveNum) {
+		// 		echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Train_Number]</td>";
+		// 		echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
+		// 		echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Departs_From]</td>";
+		// 		echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Arrives_At]</td>";
+		// 		echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Class]</td>";
+		// 		echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
+		// 		echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Number_Baggages]</td>";
+		// 		echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Passanger_Name]</td>";
+		// 	}
+		// 	$rowNum = $rowNum + 1;
+		// }
+	echo "</table>";
+	echo "</br>";
+	// echo "<td bgcolor=\"#e6f3ff\"><center/>Train</td>";
+	// echo "</table>";
+	// header("Location:UpdateReservation2.php");
 
-		echo "</table>";
-		echo "</br><a href=\"./ChooseFuncCust.php\"><button type=\"button\">Back</button></a>";
-		echo "<input class=\"button\" type=\"submit\" name=\"search\" value=\"Next\"/>";
-	}
-
-				
+	echo "<form>";
+	echo "<table>";
+		echo "<tr>";
+			echo "<td><font size=\"4\"/>New Departure Date:&nbsp</td>";
+			echo "<td><input type=\"date\" name=\"newDepartDate\"/></td>";
+			echo "<td><input class=\"button\" type=\"submit\" name=\"search\" value=\"Search\"/></td>";
+		echo "</tr>";
+	echo "</table>";
+	echo "</form>";
 }
 
+if(isset($_POST["newDepartDate"],$_POST["search"])) {
+	$newDate = $_POST["newDepartDate"];
+	echo "$newDate";
+	echo "helloooooooo";
+}
 ?>
+
+<!-- <form>
+<table>
+	<tr>
+	
+	<td><input type="date" name="newDepartDate"/></td>
+	<td><input class="button" type="submit" name="search" value="Search"/></td>
+	</tr>
+</table>
+</form> -->
+
 </center>
 </body>
 </html>
