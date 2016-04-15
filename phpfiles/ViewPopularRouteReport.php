@@ -29,20 +29,19 @@ include 'dbinfo.php';
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
 
-	$sql = "SELECT MONTHNAME(Departure_Date) AS month, train_number, count(month(departure_date)) AS number_of_reservations, 
-			is_cancelled FROM 
-			(SELECT Train_Number, Is_Cancelled, Departure_Date 
-				FROM Train_Route NATURAL JOIN Reserves NATURAL JOIN Reservation 
-			NATURAL JOIN Customer WHERE Month(Departure_date) BETWEEN Month(Date_Sub(now(), INTERVAL 2 MONTH)) 
-			AND Month(CURDATE()) AND Is_Cancelled = \"0\") AS A
-			GROUP BY MONTHNAME(Departure_Date), Train_Number;";
+	$sql = "SELECT MONTHNAME(Departure_Date), train_number, count(month(departure_date)) FROM 
+			(SELECT Train_Number, Departure_Date 
+				FROM Train_Route NATURAL JOIN Reserves NATURAL JOIN Reservation NATURAL JOIN Customer 
+				WHERE Departure_Date BETWEEN Date_Sub(DATE_FORMAT(NOW() ,'%Y-%m-01'), INTERVAL 2 MONTH) AND CURDATE() 
+				AND Is_Cancelled = \"0\") AS A
+			GROUP BY MONTHNAME(Departure_Date), Train_Number";
 
 	$result = mysql_query($sql) or die(mysql_error());
 
 	if (mysql_num_rows($result) == 0) {
-			echo "<font color=\"red\">";
-			echo "There are no reservations for the past 3 months";
-			echo "</font>";
+		echo "<font color=\"red\">";
+		echo "There are no reservations for the past 3 months";
+		echo "</font>";
 	} else {
 		$prevMonth = "";
 		while($row = mysql_fetch_array($result)) {
