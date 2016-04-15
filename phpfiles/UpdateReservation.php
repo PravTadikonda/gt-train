@@ -51,6 +51,7 @@ if(isset($_POST['reservationID'])) {
 		$sql = "SELECT * FROM Reserves JOIN Reservation WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND 
 			Reserves.Reservation_ID = \"$reservationID\" AND Reservation.Cust_User = \"$user\"";
 		$result = mysql_query($sql) or die("The reservation ID does not exist");
+		$result2 = $result;
 		if(mysql_num_rows($result) == 0) {
 			echo "<font color=\"red\">";
 			echo "This reservation ID does not exist for you.";
@@ -70,7 +71,7 @@ if(isset($_POST['reservationID'])) {
 				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Passanger Name</td>";
 			echo "</tr>";
 			$rowNum = 1;
-			while($row = mysql_fetch_array($result)) {
+			while($row = mysql_fetch_array($result2)) {
 				echo "<tr>";
 					echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"reserve\" value=\"$rowNum\"/></td>";
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Train_Number]</td>";
