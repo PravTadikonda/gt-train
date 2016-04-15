@@ -88,10 +88,15 @@ if(isset($_POST['reservationID'])) {
 			// $reserveNum = $_POST["reserve"];
 			// $_SESSION['reserveNum'] = $reserveNum;
 			// echo "$reserveNum";
-
+			// print 
 			echo "</br><a href=\"./ChooseFuncCust.php\"><button type=\"button\">Back</button></a>";
-			echo "<input class=\"button\" type=\"submit\" name=\"next\" value=\"Next\"/>";
-			// echo "<a href=\"./UpdateReservation2.php\"><button type=\"button\">Next</button></a>";
+			echo "<a href=\"./UpdateReservation2.php\"><input class=\"button\" type=\"button\" name=\"next\" value=\"Next\"/></a>";
+			// echo "<a href=\"./UpdateReservation2.php\"><input style=\"width:100px;height:25px\" type=\"button\" value=\"Next\"></input></a>";
+			// echo "<input type=\"button\" value=\"blah1\" onClick=\"window.location.href = 'UpdateReservation2.php'\">";
+			// $_GET["reserve"];
+			$reserveNum = $_REQUEST["reserve"];
+			$_SESSION['reserveNum'] = $reserveNum;
+			echo "$reserveNum";
 			echo "</form>";
 		}
 	}
@@ -102,14 +107,14 @@ if(isset($_POST["reserve"])) {
 	$reserveNum = $_POST["reserve"];
 
 	$_SESSION['reserveNum'] = $reserveNum;
-	// echo "$reserveNum";
+	echo "$reserveNum";
 
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
 	
-	// $sql = "SELECT * FROM Reserves JOIN Reservation WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND 
-	// 		Reserves.Reservation_ID = \"$reservationID\" AND Reservation.Cust_User = \"$user\"";
-	// $result = mysql_query($sql) or die("The reservation ID does not exist");
+	$sql = "SELECT * FROM Reserves JOIN Reservation WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND 
+			Reserves.Reservation_ID = \"$reservationID\" AND Reservation.Cust_User = \"$user\"";
+	$result = mysql_query($sql) or die("The reservation ID does not exist");
 	
 	//how to get that row we just selected
 	echo "<table border=\"1\" bordercolor=\"black\">";
