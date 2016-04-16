@@ -48,7 +48,8 @@ if(isset($_POST['reservationID'])) {
 		echo "</font>";
 	} else {
 		//when we delete reservation, is the ID gone too?
-		$sql = "SELECT * FROM Reserves JOIN Reservation WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND 
+		$sql = "SELECT  Train_Number, Departs_From, Arrives_At, Class, TRUNCATE(Total_Cost, 2) as Total_Cost, Number_Baggages, Passanger_Name
+			FROM Reserves JOIN Reservation WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND 
 			Reserves.Reservation_ID = \"$reservationID\" AND Reservation.Cust_User = \"$user\"";
 		$result = mysql_query($sql) or die("The reservation ID does not exist");
 		$result2 = $result;
@@ -79,7 +80,7 @@ if(isset($_POST['reservationID'])) {
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Departs_From]</td>";
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Arrives_At]</td>";
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Class]</td>";
-					echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/>$$row[Total_Cost]</td>";
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Number_Baggages]</td>";
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Passanger_Name]</td>";
 				echo "</tr>";

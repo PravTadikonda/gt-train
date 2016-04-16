@@ -27,6 +27,7 @@ include 'dbinfo.php';
 </table>
 
 <p>
+	<a href="./ChooseFuncCust.php"><button type="button">Back</button></a>
 	<input class="button" type="submit" name="submit" value="Search"/>
 </p>
 </form> 

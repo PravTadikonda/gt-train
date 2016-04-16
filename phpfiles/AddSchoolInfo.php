@@ -72,9 +72,12 @@ if(isset($_POST['school'])) {
 		$sql2 = "SELECT Reservation_ID FROM Reserves NATURAL JOIN Reservation WHERE Cust_User=\"$user\"";
 		$result2 = mysql_query($sql2) or die(mysql_error());
 		$reservation_id = mysql_fetch_array($result2)[0];
+		$sql6 = "SELECT Student_Discount FROM SystemInfo";
+		$result6 = mysql_query($sql6) or die(mysql_error());
+		$studentDiscount = mysql_fetch_array($result6)[0];
 		if (mysql_num_rows($result) !== 0) {
 			while($row = mysql_fetch_array($result)) {
-				$new_Total_Cost = $row[0] * .8;
+				$new_Total_Cost = $row[0] * $studentDiscount;
 				$sql3 = "UPDATE Reserves SET Total_Cost=\"$new_Total_Cost\" WHERE Reservation_ID=\"$reservation_id\" AND Total_Cost=\"$row[0]\"";
 				mysql_query($sql3) or die(mysql_error());
 			}

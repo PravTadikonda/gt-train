@@ -28,7 +28,11 @@ include 'dbinfo.php';
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
 
-	$sql = "SELECT monthname(departure_date) as month, first_class_price, second_class_price, class, number_baggages, is_cancelled, is_student FROM (select * from train_route natural join reserves natural join reservation) as a natural join customer WHERE month(departure_date) BETWEEN month(date_sub(now(), interval 2 month)) AND month(CURDATE())";
+	$sql = "SELECT MONTHNAME(Departure_Date) AS Month, TRUNCATE(SUM(Total_Cost), 2) AS Revenue
+				FROM (SELECT Total_Cost, Departure_Date 
+					FROM Train_Route NATURAL JOIN Reserves NATURAL JOIN Reservation NATURAL JOIN Customer 
+					WHERE Departure_Date BETWEEN Date_Sub(DATE_FORMAT(NOW() ,'%Y-%m-01'), INTERVAL 2 MONTH) AND CURDATE()) 
+				AS a GROUP BY MONTHNAME(Departure_Date)";
 	$result = mysql_query($sql) or die(mysql_error());
 
 	if (mysql_num_rows($result) == 0) {
@@ -38,13 +42,12 @@ include 'dbinfo.php';
 	} else {
 		while($row = mysql_fetch_array($result)) {
 			echo "<tr>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[0]</td>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[1]</td>";
+				echo "<td bgcolor=\"#e6f3ff\" style=\"padding-right:2em;\">$row[0]</td>";
+				echo "<td bgcolor=\"#e6f3ff\" style=\"padding-right:2em;\">$$row[1]</td>";
 			echo "</tr>";	
 		}
 		echo "</table>";
 	}
-
 ?>
 
 <p>
