@@ -9,6 +9,7 @@ include 'dbinfo.php';
 <head>
 	<link rel="icon" href="demo_icon.png" type="image/png" sizes="16x16">
   	<link rel="stylesheet" href="style.css">
+  	
 </head>
 
 <body >
@@ -50,22 +51,16 @@ if(isset($_POST['user'],$_POST['pass'])){
 	$sql= "SELECT Cust_User, Password FROM Customer NATURAL JOIN User WHERE Customer.Cust_User=User.Username AND Customer.Cust_User=\"$user\" AND User.Password=\"$pass\"";
 	$result = mysql_query($sql) or die(mysql_error());
 	if (mysql_num_rows($result) == 1) {
-		// header("Location:ChooseFuncCust.php");
-		echo "<a href=\"./ChooseFuncCust.php\">";
-		echo "<font color=\"green\">";
-		echo "click here!";
-		echo "</font>";
-		echo "</a>";
+		echo "<script type=\"text/javascript\">";
+		echo "window.top.location=\"./ChooseFuncCust.php\"";
+  		echo "</script>";
 	} else {
 		$sql2= "SELECT Mgr_User, Password FROM Manager NATURAL JOIN User WHERE Manager.Mgr_User=User.Username AND Manager.Mgr_User=\"$user\" AND User.Password=\"$pass\"";
 		$result2 = mysql_query($sql2) or die(mysql_error());
 		if (mysql_num_rows($result2) == 1) {
-			// header("Location:ChooseFuncMang.php");
-			echo "<a href=\"./ChooseFuncMang.php\">";
-			echo "<font color=\"green\">";
-			echo "click here!";
-			echo "</font>";
-			echo "</a>";
+			echo "<script type=\"text/javascript\">";
+			echo "window.top.location=\"./ChooseFuncMang.php\"";
+	  		echo "</script>";
 		} else {
 			echo "<font color=\"red\">";
 			echo "Your username and/or password is wrong. </br> Are you sure you're a user?";
@@ -74,7 +69,6 @@ if(isset($_POST['user'],$_POST['pass'])){
 	}
 }
 ?>
-
 </center>
 </body>
 </html>

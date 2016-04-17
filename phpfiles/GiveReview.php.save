@@ -53,7 +53,7 @@ include 'dbinfo.php';
 
 $user = $_SESSION['userID'];
 
-if(isset($_POST['trainNum'],$_POST['rating'])) {
+if(isset($_POST['trainNum'])) {
 	$trainNum = $_POST['trainNum'];
 	$rating = $_POST['rating'];
 	$comment = $_POST['comment'];

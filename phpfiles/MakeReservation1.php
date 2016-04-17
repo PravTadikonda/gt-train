@@ -1,4 +1,5 @@
 <?php
+session_start();
 include 'dbinfo.php';
 ?>
 
@@ -14,7 +15,7 @@ include 'dbinfo.php';
 <h1>GEORGIA TECH TRAIN</h1>
 <br/><br/>
 
-<form action=\"\" method=\"POST\" id = "mainBlock"> 
+<form action="" method="POST"> 
 <b><p class = "title"> SEARCH TRAIN</p></b>
 <table>
   <tr>
@@ -48,12 +49,20 @@ include 'dbinfo.php';
 <p>   </p> 
 <br/>
 <a href="#"><button type="button">Find Trains</button></a>
+<input class="button" type="submit" name="submit" value="Submit"/>
 </form> 
 
 <br>
 <a href="./ChooseFuncCust.php"><img src="buzz.png" width="128" height="128"></a>
 
 <?php
+
+
+// $bags = $_SESSION['bags'];
+// $passangerName = $_SESSION['passangerName'];
+
+echo "$bags</br>$passangerName";
+
 
 mysql_connect($host,$username,$password) or die("Unable to connect");
 mysql_select_db($database) or die("Unable to select database");
