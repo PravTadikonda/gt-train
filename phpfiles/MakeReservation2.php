@@ -21,8 +21,8 @@ include 'dbinfo.php';
 
 date_default_timezone_set('America/New_York');
 $user = $_SESSION['userID'];
-$departLocation = $_SESSION['depart_location'];
-$arriveLocation = $_SESSION['arrive_location'];
+$departName = $_SESSION['depart_name'];
+$arriveName = $_SESSION['arrive_name'];
 $departDate = $_SESSION['depart_date'];
 mysql_connect($host,$username,$password) or die("Unable to connect");
 mysql_select_db($database) or die("Unable to select database");
@@ -31,16 +31,17 @@ $sql = "CREATE OR REPLACE VIEW reservStation AS (SELECT Name, Stop.Train_Number,
         Second_Class_Price FROM Stop JOIN Train_Route WHERE Stop.Train_Number = Train_Route.Train_Number)";
 mysql_query($sql) or die(mysql_error());
 
+//check to make sure no negative times
 $sql2 = "SELECT Arrival_Station.Train_Number, Departure_Station.Departure_Time, Arrival_Station.Arrival_Time, 
         Arrival_Station.First_Class_Price, Arrival_Station.Second_Class_Price 
         FROM reservStation Arrival_Station JOIN reservStation Departure_Station 
         WHERE Arrival_Station.Train_Number = Departure_Station.Train_Number AND Arrival_Station.Name != Departure_Station.Name 
-        AND Departure_Station.Name = \"$departLocation\" AND Arrival_Station.Name = \"$arriveLocation\";";
+        AND Departure_Station.Name = \"$departName\" AND Arrival_Station.Name = \"$arriveName\";";
 $result2 = mysql_query($sql2) or die(mysql_error());
 
 if(mysql_num_rows($result2) == 0) {
     echo "<font color=\"red\">";
-    echo "You cannot make those reservations with those stops.";
+    echo "You cannot make those reservations with those stops.$departName";
     echo "</font>";
     echo "</br></br>";
     echo "<a href=\"./MakeReservation1.php\"><button type=\"button\">Back</button></a>";
@@ -67,8 +68,8 @@ if(mysql_num_rows($result2) == 0) {
             echo "<td bgcolor=\"#e6f3ff\"><center/>$row[0]</td>";
             echo "<td bgcolor=\"#e6f3ff\">$departTimeFormat - $arrivalTimeFormat
                     </br>$hourDiff hrs $minDiff mins</td>";
-            echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"price1\" value=\"$row[3]\"/>$row[3]</td>";
-            echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"price2\" value=\"$row[4]\"/>$row[4]</td>";
+            echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"price\" value=\"$row[3]_1_$row[0]\"/>$row[3]</td>";
+            echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"price\" value=\"$row[4]_2_$row[0]\"/>$row[4]</td>";
         echo "</tr>";
     }
     echo "</table>";
@@ -78,9 +79,25 @@ if(mysql_num_rows($result2) == 0) {
     echo "</form>";
 }
 
-if(isset($_POST["price1"], $_POST["price2"])) {
-    $firstClassPrice = $_POST["price1"];
-    echo "$firstClassPrice";
+if(isset($_POST["price"])) {
+    $classPrice = $_POST["price"];
+    $pattern = '/[_]/';
+    $price = preg_split($pattern, $classPrice)[0];
+    $class = preg_split($pattern, $classPrice)[1];
+    $trainNum = preg_split($pattern, $classPrice)[2];
+    $_SESSION['reserve_price'] = $price;
+    $_SESSION['reserve_class'] = $class;
+    $_SESSION['train_num'] = $trainNum;
+
+    if(empty($classPrice)) {
+        echo "<font color=\"red\">";
+        echo "Select a price";
+        echo "</font>";
+    } else {
+        echo "<script type=\"text/javascript\">";
+        echo "window.top.location=\"./TravelExtras.php\"";
+        echo "</script>";
+    }
 }
 ?>
 

@@ -34,7 +34,7 @@ echo "<table>";
         echo "<td><select name=\"depart\">";
             echo "<option value=\"Nothing\">--</option>";
             while($row = mysql_fetch_array($result)){
-                echo "<option value=\"$row[0]\">$row[0]($row[1])</option>";
+                echo "<option value=\"$row[0]_$row[1]\">$row[1]($row[0])</option>";
             }
         echo "</select></td>";
     echo "</tr>";
@@ -42,7 +42,7 @@ echo "<table>";
         echo "<td><select name=\"arrive\">";
             echo "<option value=\"Nothing\">--</option>";
             while($row = mysql_fetch_array($result2)){
-                echo "<option value=\"$row[0]\">$row[0]($row[1])</option>";
+                echo "<option value=\"$row[0]_$row[1]\">$row[1]($row[0])</option>";
             }
         echo "</select></td>";
     echo "<tr>";
@@ -57,10 +57,17 @@ echo "</form>";
 
 if(isset($_POST["depart"], $_POST["arrive"])) {
     $departDate = $_POST["departDate"];
-    $departLocation = $_POST["depart"];
-    $arriveLocation = $_POST["arrive"];
+    $dep = $_POST["depart"];
+    $arr = $_POST["arrive"];
+    $pattern = '/[_]/';
+    $departLocation = preg_split($pattern, $dep)[1];
+    $departName = preg_split($pattern, $dep)[0];
+    $arriveLocation = preg_split($pattern, $arr)[1];
+    $arriveName = preg_split($pattern, $arr)[0];
 
+    $_SESSION['depart_name'] = $departName;
     $_SESSION['depart_location'] = $departLocation;
+    $_SESSION['arrive_name'] = $arriveName;
     $_SESSION['arrive_location'] = $arriveLocation;
     $_SESSION['depart_date'] = $departDate;
 

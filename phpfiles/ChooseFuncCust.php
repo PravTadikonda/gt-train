@@ -12,7 +12,8 @@ include 'dbinfo.php';
 <body >
 <center> 
 <h1>GEORGIA TECH TRAIN</h1>
-<br/><br/>
+
+<img src="buzz.png" width="128" height="128">
 
 <form action=\"\" method=\"POST\" id = "mainBlock"> 
 <b><p class = "title"> CHOOSE FUNCTIONALITY</p></b>
@@ -46,7 +47,6 @@ include 'dbinfo.php';
 </form> 
 
 <br>
-<img src="buzz.png" width="128" height="128">
 
 <?php
 

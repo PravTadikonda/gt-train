@@ -23,6 +23,7 @@ include 'dbinfo.php';
 		<td><font size="4"/>Number of Bags:</td>
 		<td><select name="bags">
         	<option value="Nothing">--</option>
+			<option value="0">0</option>
 			<option value="1">1</option>
 			<option value="2">2</option>
 			<option value="3">3</option>
@@ -37,7 +38,7 @@ include 'dbinfo.php';
 </table>
 
 <p>
-	<a href="#"><button type="button">Back</button></a>
+	<a href="MakeReservation2.php"><button type="button">Back</button></a>
 	<input class="button" type="submit" name="submit" value="Next"/>
 </p>
 </form> 
@@ -63,7 +64,7 @@ if(isset($_POST["bags"], $_POST["passangerName"])) {
 		echo "</font>";
 	} else {
 		echo "<script type=\"text/javascript\">";
-		echo "window.top.location=\"./MakeReservation1.php\"";
+		echo "window.top.location=\"./MakeReservation3.php\"";
   		echo "</script>";
 	}
 }

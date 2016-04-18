@@ -42,11 +42,12 @@ if(isset($_POST["reserve"])) {
 <br>
 
 <?php
-$reserveNum = $_SESSION["reserveNum_ID"];
+$reserveNum = $_SESSION['reserveNum_ID'];
+echo "ReservationID: $reserveNum";
 
 if(isset($_POST["newDepartDate"])) {
 	$newDate = $_POST["newDepartDate"];
-	echo "$newDate</br>$reserveNum";
+	echo "$newDate</br>";
 }
 ?>
 
