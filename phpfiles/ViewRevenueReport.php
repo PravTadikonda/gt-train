@@ -28,10 +28,7 @@ include 'dbinfo.php';
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
 
-	$sql = "SELECT MONTHNAME(Departure_Date) AS Month, TRUNCATE(SUM(Total_Cost), 2) AS Revenue
-			FROM (SELECT Total_Cost, Departure_Date FROM Reserves
-				WHERE Departure_Date BETWEEN Date_Sub(DATE_FORMAT(NOW() ,'%Y-%m-01'), INTERVAL 2 MONTH) AND CURDATE()) AS a 
-			GROUP BY MONTHNAME(Departure_Date)";
+	$sql = "SELECT * FROM Reserves";
 	$result = mysql_query($sql) or die(mysql_error());
 
 	if (mysql_num_rows($result) == 0) {
