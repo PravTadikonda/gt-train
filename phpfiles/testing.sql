@@ -11,3 +11,17 @@ update reservation set is_cancelled='1' where reservation_id='';
 -- gets the departing time for every stop
 select departure_time, departs_from, reserves.train_number from Stop natural join Station join Reserves where Station.location = Reserves.departs_from
 
+
+
+--------------------------------------------------------------------------------------------------------------
+
+-- to get all stations, times, and prices
+CREATE VIEW reservStation AS (SELECT Name, Stop.Train_Number, Arrival_Time, Departure_Time, First_Class_Price, Second_Class_Price 
+from Stop JOIN Train_Route where Stop.Train_Number = Train_Route.Train_Number)
+
+-- 
+SELECT Arrival_Station.Train_Number, Departure_Station.Departure_Time, Arrival_Station.Arrival_Time, 
+Arrival_Station.First_Class_Price, Arrival_Station.Second_Class_Price 
+FROM reservStation Arrival_Station JOIN reservStation Departure_Station 
+where Arrival_Station.Train_Number = Departure_Station.Train_Number and Arrival_Station.Name != Departure_Station.Name 
+and Departure_Station.Name = "Train Crossing" and Arrival_Station.Name = "Burdell Cabin";

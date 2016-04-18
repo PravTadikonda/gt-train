@@ -13,61 +13,81 @@ include 'dbinfo.php';
 <body >
 <center> 
 <h1>GEORGIA TECH TRAIN</h1>
-<br/><br/>
 
-<form action="" method="POST"> 
-<b><p class = "title"> SEARCH TRAIN</p></b>
-<table>
-  <tr>
-    <td><font size="4"/>Departs From:</td>
-    <td><select>
-        <option value="Nothing">--</option>
-        <option value="City1">City1</option>
-        <option value="City2">City2</option>
-        <option value="City3">City3</option>
-        <option value="City4">City4</option>
-        <option value="City5">City5</option>
-    </select></td>
-  </tr>
-  <tr>
-    <td><font size="4"/>Arrives At:</td>
-    <td><select>
-        <option value="Nothing">--</option>
-        <option value="City1">City1</option>
-        <option value="City2">City2</option>
-        <option value="City3">City3</option>
-        <option value="City4">City4</option>
-        <option value="City5">City5</option>
-    </select></td>
-  </tr>
-  <tr>
-    <td><font size="4"/>Departure Date:</td>
-    <td><input type="date" name="departDate"/></td>
-  </tr>
-</table>
-
-<p>   </p> 
-<br/>
-<a href="#"><button type="button">Find Trains</button></a>
-<input class="button" type="submit" name="submit" value="Submit"/>
-</form> 
-
-<br>
 <a href="./ChooseFuncCust.php"><img src="buzz.png" width="128" height="128"></a>
 
 <?php
 
-
-// $bags = $_SESSION['bags'];
-// $passangerName = $_SESSION['passangerName'];
-
-echo "$bags</br>$passangerName";
-
-
+$user = $_SESSION['userID'];
 mysql_connect($host,$username,$password) or die("Unable to connect");
 mysql_select_db($database) or die("Unable to select database");
 
+$sql = "SELECT * FROM Station";
+$result = mysql_query($sql) or die(mysql_error());
+$result2 = mysql_query($sql) or die(mysql_error());
+
+echo "<form action=\"\" method=\"POST\">";
+echo "<b><p class = \"title\"> SEARCH TRAIN</p></b>";
+echo "<table>";
+    echo "<tr>";
+        echo "<td><font size=\"4\"/>Departs From:</td>";
+        echo "<td><select name=\"depart\">";
+            echo "<option value=\"Nothing\">--</option>";
+            while($row = mysql_fetch_array($result)){
+                echo "<option value=\"$row[0]\">$row[0]($row[1])</option>";
+            }
+        echo "</select></td>";
+    echo "</tr>";
+        echo "<td><font size=\"4\"/>Arrives At:</td>";
+        echo "<td><select name=\"arrive\">";
+            echo "<option value=\"Nothing\">--</option>";
+            while($row = mysql_fetch_array($result2)){
+                echo "<option value=\"$row[0]\">$row[0]($row[1])</option>";
+            }
+        echo "</select></td>";
+    echo "<tr>";
+        echo "<td><font size=\"4\"/>Departure Date:</td>";
+        echo "<td><input type=\"date\" name=\"departDate\"/></td>";
+    echo "</tr>";
+echo "</table>";
+echo "<br/>";
+echo "<a href=\"./ChooseFuncCust.php\"><button type=\"button\">Back</button></a>";
+echo "<input class=\"button\" type=\"submit\" name=\"submit\" value=\"Find Trains\"/>";
+echo "</form>";
+
+if(isset($_POST["depart"], $_POST["arrive"])) {
+    $departDate = $_POST["departDate"];
+    $departLocation = $_POST["depart"];
+    $arriveLocation = $_POST["arrive"];
+
+    $_SESSION['depart_location'] = $departLocation;
+    $_SESSION['arrive_location'] = $arriveLocation;
+    $_SESSION['depart_date'] = $departDate;
+
+    $sql3 = "SELECT CURDATE()";
+    $result3 = mysql_query($sql3) or die(mysql_error());
+    $today = mysql_fetch_array($result3)[0];
+
+    if($departLocation == 'Nothing' or $arriveLocation == 'Nothing' or empty($departDate)) {
+        echo "<font color=\"red\">";
+        echo "Some fields are not filled in";
+        echo "</font>";
+    } else if($departLocation == $arriveLocation) {
+        echo "<font color=\"red\">";
+        echo "You cannot have the same depart and arrive locations";
+        echo "</font>";
+    } else if($today > $departDate) {
+        echo "<font color=\"red\">";
+        echo "This date already passed, sorry.";
+        echo "</font>";
+    } else {
+        echo "<script type=\"text/javascript\">";
+        echo "window.top.location=\"./MakeReservation2.php\"";
+        echo "</script>";
+    }
+}
 ?>
+
 </center>
 </body>
 </html>

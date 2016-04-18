@@ -32,20 +32,21 @@ include 'dbinfo.php';
 if(isset($_POST["reservationID"])) {
 	$reservationID = $_POST["reservationID"];
 	$user = $_SESSION['userID'];
+	$_SESSION['reserveID'] = $reservationID;
 
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
 
-	$sql = "SELECT Second_Class_Price, First_Class_Price, Reserves.Train_Number, Departs_From, Arrives_At, Class, 
+	$sql = "SELECT Departure_Date, Monthname(Departure_Date) as Month, Day(Departure_Date) as Day, Second_Class_Price, First_Class_Price, Reserves.Train_Number, Departs_From, Arrives_At, Class, 
 			TRUNCATE(Total_Cost, 2) AS TC, Number_Baggages, Passanger_Name
 			FROM Reserves JOIN Reservation NATURAL JOIN Train_Route 
 			WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND Reserves.Reservation_ID = \"$reservationID\" 
-			AND Reservation.Cust_User = \"$user\" AND Reserves.Train_Number = Train_Route.Train_Number";
+			AND Reservation.Cust_User = \"$user\" AND Reserves.Train_Number = Train_Route.Train_Number AND Departure_Date > now()";
 	$result = mysql_query($sql) or die(mysql_error());
 	
 	$sql2 = "SELECT Sum(TRUNCATE(Total_Cost, 2)) AS TC FROM Reserves JOIN Reservation NATURAL JOIN Train_Route 
 			WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND Reserves.Reservation_ID = \"$reservationID\" 
-			AND Reservation.Cust_User = \"$user\" AND Reserves.Train_Number = Train_Route.Train_Number";
+			AND Reservation.Cust_User = \"$user\" AND Reserves.Train_Number = Train_Route.Train_Number AND Departure_Date > now()";
 	$result2 = mysql_query($sql2) or die(mysql_error());
 	$totalSum = mysql_fetch_array($result2)[0];
 
@@ -53,9 +54,18 @@ if(isset($_POST["reservationID"])) {
 	$result3 = mysql_query($sql3) or die(mysql_error());
 	$today = mysql_fetch_array($result3)[0];
 
+	$sql4 = "SELECT Is_Cancelled FROM Reserves JOIN Reservation NATURAL JOIN Train_Route 
+			WHERE Reserves.Reservation_ID = Reservation.Reservation_ID 
+			AND Reserves.Reservation_ID = \"$reservationID\" AND Is_Cancelled =\"0\"";
+	$result4 = mysql_query($sql4) or die(mysql_error());
+
 	if(mysql_num_rows($result) == 0) {
 		echo "<font color=\"red\">";
 		echo "This reservation ID does not exist for you.";
+		echo "</font>";
+	} else if(mysql_num_rows($result4) == 0) {
+		echo "<font color=\"red\">";
+		echo "You have already cancelled all reservations under this ID.";
 		echo "</font>";
 	} else {
 		echo "<table border=\"1\" bordercolor=\"black\">";
@@ -70,15 +80,26 @@ if(isset($_POST["reservationID"])) {
 			echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Passanger Name</td>";
 		echo "</tr>";
 		$classNum = 0;
+		$earliestDay = 1000000000;
+		$earliestDate = 'Nothing';
+		$_SESSION['numberOfCancelRows'] = mysql_num_rows($result);
+
 		while($row = mysql_fetch_array($result)) {
 			if ("$row[Class]" == 1) { 
 				$classNum = "$row[First_Class_Price]"; 
 			} else { 
 				$classNum = "$row[Second_Class_Price]"; 
-			} 
+			}
+			$sql5 = "SELECT TIMESTAMPDIFF(day, now(), \"$row[Departure_Date]\")";
+			$result5 = mysql_query($sql5) or die(mysql_error());
+			$difference = mysql_fetch_array($result5)[0];
+			if ($difference < $earliestDay and $difference >= 0) {
+				$earliestDate = $row["Departure_Date"];
+				$earliestDay = $difference;
+			}
 			echo "<tr>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Train_Number]</td>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Month]&nbsp$row[Day]</td>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Departs_From]</td>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Arrives_At]</td>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Class]</td>";
@@ -88,17 +109,55 @@ if(isset($_POST["reservationID"])) {
 			echo "</tr>";
 		}
 		echo "</table>";
+		$refundedSum = 0;
+		if($earliestDay > 7) {
+			$refundedSum = ($totalSum * .8) - 50;
+		} else if($earliestDay <= 7 and $earliestDay > 1) {
+			$refundedSum = ($totalSum * .5) - 50;
+		} else {
+			$refundedSum = $totalSum - 50;
+		}
+		if ($refundedSum < 0) {
+			$refundedSum = 0;
+		}
+		$refundedSum = number_format("$refundedSum",2)."";
+
+		$_SESSION['refunded']= $refundedSum;
 
 		echo " </br>";
-		echo "Total Cost of Reservation: <input value=\"$totalSum\" maxlength=\"20\"/>";
+		echo "<form action=\"\" method=\"POST\">";
+		echo "Total Cost of Reservation: <input value=\"$$totalSum\" maxlength=\"20\"/>";
 		echo " </br> </br>";
 		echo "Date of Cancellation: <input value=\"$today\" maxlength=\"20\"/>";
 		echo " </br> </br>";
-		echo "Amount to be Refunded: <input value=\"NOTHING\" maxlength=\"20\"/>";
+		echo "Amount to be Refunded: <input value=\"$$refundedSum\" maxlength=\"20\"/>";
 		echo " </br> </br>";
 		echo "<a href=\"./chooseFuncCust.php\"><button type=\"button\">Back</button></a>";
-		echo "<a href=\"#\"><button type=\"button\">Submit</button></a>";
+		echo "<input class=\"button\" type=\"submit\" name=\"cancel\" value=\"Submit\"/>";
+		echo "</form>";
 	}
+}
+
+if(isset($_POST["cancel"])) {
+	$refundedSum = $_SESSION['refunded'];
+	$user = $_SESSION['userID'];
+	$reservationID = $_POST['reserveID'];
+	$numberOfCancelRows = $_SESSION['numberOfCancelRows'];
+
+	echo "<font color=\"green\">";
+	echo "You're reservation has been cancelled and you have been refunded <u>$$refundedSum</u>!";
+	echo "</font>";
+
+	$refundedSum = $refundedSum/$numberOfCancelRows;
+	// $sql6 = "UPDATE Reservation SET Is_Cancelled=\"1\" WHERE User=\"$user\" AND Reservation_ID=\"$reservationID\"";
+	// mysql_query($sql6) or die(mysql_error());
+	
+	//change the total cost somehow
+	// $sql7 = "UPDATE Reserves SET Total_Cost=\"$refundedSum\" WHERE Reservation_ID=\"$reservationID\"";
+	// mysql_query($sql7) or die(mysql_error());
+
+	echo "</br></br>";
+	echo "<a href=\"./chooseFuncCust.php\"><button type=\"button\">Back</button></a>";
 
 }
 ?>
