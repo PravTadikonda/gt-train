@@ -44,11 +44,11 @@ echo "<table>";
 				echo "</tr>";
 				echo "<tr>";
 					echo "<td><font size=\"4\"/>Card Number:</td>";
-					echo "<td><input type=\"number\" name=\"cardNumber\" max=\"99999999999999999\" min=\"1000000000000000\" maxlength=\"30\"/></td>";
+					echo "<td><input pattern=\".{16,}\" required title=\"16 characters minimum\" type=\"text\" name=\"cardNumber\" maxlength=\"16\"/></td>";
 				echo "</tr>";
 				echo "<tr>";
 					echo "<td><font size=\"4\"/>CVV:</td>";
-					echo "<td><input type=\"number\" name=\"cardCVV\" max=\"999\" min=\"100\"/></td>";
+					echo "<td><input pattern=\".{3,}\" required title=\"16 characters minimum\" type=\"text\" name=\"cardCVV\" maxlength=\"3\"/></td>";
 				echo "</tr>";
 				echo "<tr>";
 					echo "<td><font size=\"4\"/>Expiration Date:</td>";
@@ -123,7 +123,7 @@ if(isset($_POST["addCard"])) {
 	$cardMonth = $_POST['month'];
 	$cardYear = $_POST['year'];
 
-	$sql2 = "SELECT Card_Number FROM PaymentInfo";
+	$sql2 = "SELECT Card_Number FROM PaymentInfo WHERE Card_Number=\"$cardNumber\"";
 	$result2 = mysql_query($sql2) or die(mysql_error());
 	
 	if(empty($cardNumber) or empty($cardName) or empty($cardCVV)) {
@@ -134,14 +134,17 @@ if(isset($_POST["addCard"])) {
 		echo "<font color=\"red\">";
 		echo "You have to select a Year and a Date";
 		echo "</font>";
-	} else if($cardName == 1) { //if cardname unique
+	} else if(mysql_num_rows($result2) > 0) {
 		echo "<font color=\"red\">";
 		echo "This card number is already in our system";
+		echo "</font>";
+	} else if(!is_numeric($cardNumber) or !is_numeric($cardCVV)) {
+		echo "<font color=\"red\">";
+		echo "Card number and CVV have to be number inputs";
 		echo "</font>";
 	} else {
 		date_default_timezone_set('America/New_York');
 		$expDate = Date("$cardYear-$cardMonth-01");
-		echo "$expDate";
 
 		mysql_connect($host,$username,$password) or die("Unable to connect");
 		mysql_select_db($database) or die("Unable to select database");

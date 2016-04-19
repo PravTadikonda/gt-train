@@ -18,11 +18,18 @@ body {
 
 button {
 	width: 100px;
-	height: 25px;
-	font-size: 15;
+	font-size: 13;
 	margin-left: 15px;
 	margin-right: 15px;
 	/*background-color: #ffffb3;*/
+}
+
+input.button {
+	width: 100px;
+	height: 25px;
+	font-size: 35;
+	margin-left: 15px;
+	margin-right: 15px;
 }
 
 p.title {
