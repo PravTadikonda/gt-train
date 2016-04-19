@@ -48,7 +48,7 @@ if(isset($_POST['trainNum'])) {
 		echo "</font>";
 	} else {
 		$sql = "SELECT Train_Number, Arrival_Time, Departure_Time, Location, Station.Name 
-				FROM (Stop JOIN Station) WHERE Train_Number=\"$trainNum\"";
+				FROM (Stop JOIN Station) WHERE Train_Number=\"$trainNum\" AND Stop.Name = Station.Name";
 		$result = mysql_query($sql) or die(mysql_error());
 		if (mysql_num_rows($result) == 0) {
 			echo "<font color=\"red\">";

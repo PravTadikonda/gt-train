@@ -44,6 +44,7 @@ if(isset($_POST['reservationID'])) {
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
 
+
 	if (empty($reservationID)) {
 		echo "<font color=\"red\">";
 		echo "Put in a reservation ID";
@@ -68,9 +69,19 @@ if(isset($_POST['reservationID'])) {
 				AND Departing.Train_Number=Reserves.Train_Number AND Station.location=reserves.arrives_at
 				ORDER BY Reserves.train_number";
 		$result2 = mysql_query($sql2) or die(mysql_error());
+
+		$sql4 = "SELECT Is_Cancelled FROM Reserves JOIN Reservation NATURAL JOIN Train_Route 
+				WHERE Reserves.Reservation_ID = Reservation.Reservation_ID 
+				AND Reserves.Reservation_ID = \"$reservationID\" AND Is_Cancelled =\"0\"";
+		$result4 = mysql_query($sql4) or die(mysql_error());
+
 		if(mysql_num_rows($result2) == 0) {
 			echo "<font color=\"red\">";
 			echo "This reservation ID does not exist for you.";
+			echo "</font>";
+		} else if(mysql_num_rows($result4) == 0) {
+			echo "<font color=\"red\">";
+			echo "You have already cancelled all reservations under this ID.";
 			echo "</font>";
 		} else {
 			echo "<form action=\"\" method=\"POST\">";

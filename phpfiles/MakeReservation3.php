@@ -36,14 +36,15 @@ $class = $_SESSION['reserve_class'];
 $trainNum = $_SESSION['train_num'];
 $departTime = $_SESSION['depart_time'];
 $arriveTime = $_SESSION['arrive_time'];
-$removed = "0";
-$newReserve = array($user,$departName,$departLocation,$arriveName,$arriveLocation,$departDate,$bags,$passangerName,$price,$class,$trainNum,$departTime,$arriveTime,$removed);
+
+$newReserve = array($user,$departName,$departLocation,$arriveName,$arriveLocation,$departDate,$bags,$passangerName,$price,$class,$trainNum,$departTime,$arriveTime);
 $allReservations = $_SESSION['all_reservations'];
 
+$_SESSION['bags'] = NULL;
 
 $alreadyAdded = False;
 foreach ($allReservations as $res) {
-    if ($trainNum == $res[10] and $res[13] == "0") {
+    if ($trainNum == $res[10]) {
         echo "<font color=\"red\">";
         echo "You cannot choose same train number as you have already chosen</br></br>";
         echo "</font>";
@@ -52,13 +53,9 @@ foreach ($allReservations as $res) {
     }
 }
 
-// echo $alreadyAdded ? 'true' : 'false';
-
-// echo "</br>$res[12]";
-if (!$alreadyAdded and $removed == "0") {
+if (!$alreadyAdded and (!empty($bags) or $bags == "0")) {
     $allReservations[] = $newReserve;
 }
-    
 
 $_SESSION['all_reservations'] = $allReservations;
 mysql_connect($host,$username,$password) or die("Unable to connect");
@@ -77,32 +74,30 @@ echo "<table border=\"1\" bordercolor=\"black\">";
         echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Remove</td>";
     echo "</tr>";
     foreach ($allReservations as $reserve) {
-        if ($reserve[13] == '0') {
-            $sql3 = "SELECT hour(timediff(\"$reserve[11]\", \"$reserve[12]\")), minute(timediff(\"$reserve[11]\", \"$reserve[12]\"))";
-            $result3 = mysql_query($sql3) or die(mysql_error());
-            $difference = mysql_fetch_array($result3);
-            $hourDiff = $difference[0];
-            $minDiff = $difference[1];
+        $sql3 = "SELECT hour(timediff(\"$reserve[11]\", \"$reserve[12]\")), minute(timediff(\"$reserve[11]\", \"$reserve[12]\"))";
+        $result3 = mysql_query($sql3) or die(mysql_error());
+        $difference = mysql_fetch_array($result3);
+        $hourDiff = $difference[0];
+        $minDiff = $difference[1];
 
-            $monthDay = date("F jS", strtotime($reserve[5]));
-            $arrivalTimeFormat = DATE("g:iA", strtotime($reserve[12]));
-            $departTimeFormat = DATE("g:iA", strtotime($reserve[11]));
+        $monthDay = date("F jS", strtotime($reserve[5]));
+        $arrivalTimeFormat = DATE("g:iA", strtotime($reserve[12]));
+        $departTimeFormat = DATE("g:iA", strtotime($reserve[11]));
 
-            $string = str_replace(' ', '', $reserve[10]);
-            echo "<tr>";
-                    echo "<td bgcolor=\"#e6f3ff\"><center/>$reserve[10]</td>";
-                    echo "<td bgcolor=\"#e6f3ff\"> $monthDay $departTimeFormat - $arrivalTimeFormat </br> $hourDiff hrs $minDiff mins</td>";
-                    echo "<td bgcolor=\"#e6f3ff\"><center/>$reserve[2]($reserve[1])</td>";
-                    echo "<td bgcolor=\"#e6f3ff\"><center/>$reserve[4]($reserve[3])</td>";
-                    echo "<td bgcolor=\"#e6f3ff\"><center/>$reserve[9]</td>";
-                    echo "<td bgcolor=\"#e6f3ff\"><center/>$$reserve[8]</td>";
-                    echo "<td bgcolor=\"#e6f3ff\"><center/>$reserve[6]</td>";
-                    echo "<td bgcolor=\"#e6f3ff\"><center/>$reserve[7]</td>";
-                    echo "<form action=\"Remove.php\" method=\"POST\">";
-                    echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"submit\" name=\"$string\" value=\"Remove\"/></td>";
-                    echo "</form>";
-            echo "</tr>";
-        }
+        $string = str_replace(' ', '', $reserve[10]);
+        echo "<tr>";
+                echo "<td bgcolor=\"#e6f3ff\"><center/>$reserve[10]</td>";
+                echo "<td bgcolor=\"#e6f3ff\"> $monthDay $departTimeFormat - $arrivalTimeFormat </br> $hourDiff hrs $minDiff mins</td>";
+                echo "<td bgcolor=\"#e6f3ff\"><center/>$reserve[2]($reserve[1])</td>";
+                echo "<td bgcolor=\"#e6f3ff\"><center/>$reserve[4]($reserve[3])</td>";
+                echo "<td bgcolor=\"#e6f3ff\"><center/>$reserve[9]</td>";
+                echo "<td bgcolor=\"#e6f3ff\"><center/>$$reserve[8]</td>";
+                echo "<td bgcolor=\"#e6f3ff\"><center/>$reserve[6]</td>";
+                echo "<td bgcolor=\"#e6f3ff\"><center/>$reserve[7]</td>";
+                echo "<form action=\"Remove.php\" method=\"POST\">";
+                echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"submit\" name=\"$string\" value=\"Remove\"/></td>";
+                echo "</form>";
+        echo "</tr>";
     }
 echo "</table>";
 
@@ -150,7 +145,6 @@ echo "<a href=\"./PaymentInformation.php\">Add Card</a>";
 echo "</br></br>";
 echo "<a href=\"./MakeReservation1.php\">Continue adding a train</a>";
 echo "</br></br>";
-echo "<a href=\"./TravelExtras.php\"><button type=\"button\">Back</button></a>";
 echo "<input class=\"button\" type=\"submit\" name=\"confirm\" value=\"Submit\"/>";
 echo "</form>";
 
@@ -168,7 +162,7 @@ if(isset($_POST["confirm"])) {
     } else if(empty($allReservations)) {
         echo "</br></br>";
         echo "<font color=\"red\">";
-        echo "You removed all reservations";
+        echo "You removed all reservations.</br>Either add another train, or click on Buzz to go back to menu.";
         echo "</font>";
     } else {
         $reservationID = rand(10000, 99999);
