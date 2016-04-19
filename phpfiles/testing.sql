@@ -1,3 +1,14 @@
+create or replace view stops as (select * from Train_Route natural join Stop natural join Station)
+
+SELECT Station.location, Stop.departure_time, Stop.arrival_time, Reserves.Train_Number, Departs_From, Arrives_At, Class, 
+TRUNCATE(Total_Cost, 2) as Total_Cost, Number_Baggages, Passanger_Name 
+FROM Reserves JOIN Reservation NATURAL JOIN Train_Route natural join Stop natural join Station 
+WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND  Reserves.Reservation_ID = "34343" 
+AND Reservation.Cust_User = "newuser" AND Train_Route.train_number = Reserves.train_number 
+AND (Station.location=reserves.departs_from or Station.location=reserves.arrives_at)
+
+--------------------------------------------------------------------------------------------------------------
+
 -- check if already cancelled
 select is_cancelled from reservation where reservation_id = '';
 
@@ -10,7 +21,6 @@ update reservation set is_cancelled='1' where reservation_id='';
 
 -- gets the departing time for every stop
 select departure_time, departs_from, reserves.train_number from Stop natural join Station join Reserves where Station.location = Reserves.departs_from
-
 
 
 --------------------------------------------------------------------------------------------------------------
@@ -30,6 +40,6 @@ and Departure_Station.Name = "Train Crossing" and Arrival_Station.Name = "Burdel
 
 
 SELECT MONTHNAME(Departure_Date) AS Month, TRUNCATE(SUM(Total_Cost), 2) AS Revenue
-			FROM (SELECT Total_Cost, Departure_Date FROM Reserves
-				WHERE Departure_Date BETWEEN Date_Sub(DATE_FORMAT(NOW() ,'%Y-%m-01'), INTERVAL 2 MONTH) AND CURDATE()) AS a 
-			GROUP BY MONTHNAME(Departure_Date)
+FROM (SELECT Total_Cost, Departure_Date FROM Reserves
+WHERE Departure_Date BETWEEN Date_Sub(DATE_FORMAT(NOW() ,'%Y-%m-01'), INTERVAL 2 MONTH) AND CURDATE()) AS a 
+GROUP BY MONTHNAME(Departure_Date)

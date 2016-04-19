@@ -21,18 +21,8 @@ include 'dbinfo.php';
 mysql_connect($host,$username,$password) or die("Unable to connect");
 mysql_select_db($database) or die("Unable to select database");
 
-//make sure it's not already a reservation
-$reservationID = 11111;
-$sql = "SELECT Reservation_ID FROM Reservation";
-$result = mysql_query($sql) or die(mysql_error());
-$arr = [];
-while ($row = mysql_fetch_assoc($result)) {
-    $arr[] = $row;
-}
-while (in_array($reservationID, $arr)) {
-    echo "$reservationID";
-    $reservationID = rand(10000, 99999);
-}
+$reservationID = $_SESSION['reserveID'];
+
 echo "</br>";
 echo "Reservation ID: <input value=\"$reservationID\" maxlength=\"20\"/>";
 echo "</br></br>";

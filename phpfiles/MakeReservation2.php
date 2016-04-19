@@ -68,8 +68,8 @@ if(mysql_num_rows($result2) == 0) {
             echo "<td bgcolor=\"#e6f3ff\"><center/>$row[0]</td>";
             echo "<td bgcolor=\"#e6f3ff\">$departTimeFormat - $arrivalTimeFormat
                     </br>$hourDiff hrs $minDiff mins</td>";
-            echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"price\" value=\"$row[3]_1_$row[0]\"/>$row[3]</td>";
-            echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"price\" value=\"$row[4]_2_$row[0]\"/>$row[4]</td>";
+            echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"price\" value=\"$row[3]_1_$row[0]_$row[1]_$row[2]\"/>$row[3]</td>";
+            echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"price\" value=\"$row[4]_2_$row[0]_$row[1]_$row[2]\"/>$row[4]</td>";
         echo "</tr>";
     }
     echo "</table>";
@@ -85,9 +85,13 @@ if(isset($_POST["price"])) {
     $price = preg_split($pattern, $classPrice)[0];
     $class = preg_split($pattern, $classPrice)[1];
     $trainNum = preg_split($pattern, $classPrice)[2];
+    $departTime = preg_split($pattern, $classPrice)[3];
+    $arriveTime = preg_split($pattern, $classPrice)[4];
     $_SESSION['reserve_price'] = $price;
     $_SESSION['reserve_class'] = $class;
     $_SESSION['train_num'] = $trainNum;
+    $_SESSION['depart_time'] = $departTime;
+    $_SESSION['arrive_time'] = $arriveTime;
 
     if(empty($classPrice)) {
         echo "<font color=\"red\">";

@@ -14,7 +14,7 @@ include 'dbinfo.php';
 <center> 
 <h1>GEORGIA TECH TRAIN</h1>
 
-<a href="./ChooseFuncCust.html"><img src="buzz.png" width="128" height="128"></a>
+<a href="./ChooseFuncCust.php"><img src="buzz.png" width="128" height="128"></a>
 
 <form action="" method="POST"> 
 <b><p class = "title">TRAVEL EXTRAS & PASSENGER INFO</p></b>

@@ -45,6 +45,9 @@ if(isset($_POST['user'],$_POST['pass'])){
 	$pass = $_POST['pass'];
 	$_SESSION['userID']= $user;
 
+	$reservations = array();
+	$_SESSION['all_reservations'] = $reservations;
+
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
 

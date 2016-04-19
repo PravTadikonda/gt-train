@@ -37,8 +37,10 @@ include 'dbinfo.php';
 
 if(isset($_POST['reservationID'])) {
 	$reservationID = $_POST['reservationID'];
+	$_SESSION['reservationID'] = $reservationID;
 	$user = $_SESSION['userID'];
 	
+	date_default_timezone_set('America/New_York');
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
 
@@ -48,12 +50,25 @@ if(isset($_POST['reservationID'])) {
 		echo "</font>";
 	} else {
 		//when we delete reservation, is the ID gone too?
-		$sql = "SELECT  Train_Number, Departs_From, Arrives_At, Class, TRUNCATE(Total_Cost, 2) as Total_Cost, Number_Baggages, Passanger_Name
-			FROM Reserves JOIN Reservation WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND 
-			Reserves.Reservation_ID = \"$reservationID\" AND Reservation.Cust_User = \"$user\"";
+
+		$sql = "CREATE or REPLACE VIEW Departing as (SELECT Station.location as Depart, Stop.departure_time, Reserves.Train_Number
+				FROM Reserves JOIN Reservation NATURAL JOIN Train_Route natural join Stop natural join Station
+				WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND  Reserves.Reservation_ID = \"$reservationID\"
+				AND Reservation.Cust_User = \"$user\" AND Train_Route.train_number = Reserves.train_number
+				AND (Station.location=reserves.departs_from) order by Reserves.train_number)";
 		$result = mysql_query($sql) or die("The reservation ID does not exist");
-		$result2 = $result;
-		if(mysql_num_rows($result) == 0) {
+
+		$sql2 = "SELECT Station.location as Arrive, Depart, departing.departure_time, Stop.arrival_time, Reserves.Train_Number, 
+					Departs_From, Arrives_At, Class, TRUNCATE(Train_Route.First_Class_Price, 2) as 1st,
+					TRUNCATE(Train_Route.Second_Class_Price, 2) as 2nd, TRUNCATE(Total_Cost, 2) as Total_Cost, Number_Baggages,
+					Passanger_Name, Day(Reserves.Departure_Date) as Day, Monthname(Reserves.Departure_Date) as Month, Departure_Date
+				FROM Reserves JOIN Reservation NATURAL JOIN Train_Route natural join Stop natural join Station JOIN Departing 
+				WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND  Reserves.Reservation_ID = \"$reservationID\"  
+				AND Reservation.Cust_User = \"$user\" AND Train_Route.train_number = Reserves.train_number 
+				AND Departing.Train_Number=Reserves.Train_Number AND Station.location=reserves.arrives_at
+				ORDER BY Reserves.train_number";
+		$result2 = mysql_query($sql2) or die(mysql_error());
+		if(mysql_num_rows($result2) == 0) {
 			echo "<font color=\"red\">";
 			echo "This reservation ID does not exist for you.";
 			echo "</font>";
@@ -73,14 +88,28 @@ if(isset($_POST['reservationID'])) {
 			echo "</tr>";
 			$rowNum = 1;
 			while($row = mysql_fetch_array($result2)) {
+		        $sql3 = "SELECT hour(timediff(\"$row[3]\", \"$row[2]\")), minute(timediff(\"$row[3]\", \"$row[2]\"))";
+		        $result3 = mysql_query($sql3) or die(mysql_error());
+		        $difference = mysql_fetch_array($result3);
+		        $hourDiff = $difference[0];
+		        $minDiff = $difference[1];
+
+		        $arrivalTimeFormat = DATE("g:iA", strtotime("$row[3]"));
+		        $departTimeFormat = DATE("g:iA", strtotime("$row[2]"));
+
+		        if ("$row[Class]" == 1) {
+		        	$price = $row[8];
+		        } else {
+		        	$price = $row[9];
+		        }
 				echo "<tr>";
-					echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"reserve\" value=\"$rowNum\"/></td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"reserve\" value=\"$row[Train_Number]_$row[2]_$row[3]_$row[Departs_From]_$row[Arrives_At]_$row[Class]_$row[Total_Cost]_$row[Number_Baggages]_$row[Passanger_Name]_$row[Month]_$row[Day]_$row[Departure_Date]_$price\"/></td>";
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Train_Number]</td>";
-					echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
+					echo "<td bgcolor=\"#e6f3ff\">$row[Month] $row[Day] $departTimeFormat - $arrivalTimeFormat</br>$hourDiff hrs $minDiff mins</td>";
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Departs_From]</td>";
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Arrives_At]</td>";
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Class]</td>";
-					echo "<td bgcolor=\"#e6f3ff\"><center/>$$row[Total_Cost]</td>";
+					echo "<td bgcolor=\"#e6f3ff\"><center/>$$price</td>";
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Number_Baggages]</td>";
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Passanger_Name]</td>";
 				echo "</tr>";
@@ -88,16 +117,43 @@ if(isset($_POST['reservationID'])) {
 			}
 			echo "</table>";
 			echo "</br><a href=\"./ChooseFuncCust.php\"><button type=\"button\">Back</button></a>";
-			echo "<a href=\"./UpdateReservation2.php\"><input class=\"button\" type=\"button\" name=\"next\" value=\"Next\"/></a>";
+			echo "<input class=\"button\" type=\"submit\" name=\"next\" value=\"Next\"/>";
 			echo "</form>";
 		}
 	}
 }
 
-
 if(isset($_POST["reserve"])) {
 	$reserveNum = $_POST["reserve"];
-	$_SESSION['reserveNum_ID'] = $reserveNum;
+    $pattern = '/[_]/';
+
+    $trainNum = preg_split($pattern, $reserveNum)[0];
+    $departTime = preg_split($pattern, $reserveNum)[1];
+    $arriveTime = preg_split($pattern, $reserveNum)[2];
+    $departLocation = preg_split($pattern, $reserveNum)[3];
+    $arriveLocation = preg_split($pattern, $reserveNum)[4];
+    $class = preg_split($pattern, $reserveNum)[5];
+    $totalCost = preg_split($pattern, $reserveNum)[6];
+    $numBags = preg_split($pattern, $reserveNum)[7];
+    $passangerName = preg_split($pattern, $reserveNum)[8];
+    $month = preg_split($pattern, $reserveNum)[9];
+    $day = preg_split($pattern, $reserveNum)[10]; 
+    $departDate = preg_split($pattern, $reserveNum)[11];
+    $price = preg_split($pattern, $reserveNum)[12];
+
+    $_SESSION['trainNum'] = $trainNum;
+    $_SESSION['departTime'] = $departTime;
+    $_SESSION['arriveTime'] = $arriveTime;
+    $_SESSION['departLoc'] = $departLocation;
+    $_SESSION['arriveLoc'] = $arriveLocation;
+    $_SESSION['class'] = $class;
+    $_SESSION['price'] = $price;
+    $_SESSION['totalCost'] = $totalCost;
+    $_SESSION['numBags'] = $numBags;
+    $_SESSION['passanger_name'] = $passangerName;
+    $_SESSION['selectMonth'] = $month;
+    $_SESSION['selectDay'] = $day;
+    $_SESSION['departDay'] = $departDay;
 
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");

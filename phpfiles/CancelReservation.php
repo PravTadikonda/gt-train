@@ -109,52 +109,64 @@ if(isset($_POST["reservationID"])) {
 			echo "</tr>";
 		}
 		echo "</table>";
-		$refundedSum = 0;
-		if($earliestDay > 7) {
-			$refundedSum = ($totalSum * .8) - 50;
-		} else if($earliestDay <= 7 and $earliestDay > 1) {
-			$refundedSum = ($totalSum * .5) - 50;
+
+		if ($earliestDay <= 1) {
+			echo " </br></br>";
+			echo "<font color=\"red\">";
+			echo "You cannot cancel at this time";
+			echo "</font>";
+			echo " </br></br>";
+			echo "<a href=\"./chooseFuncCust.php\"><button type=\"button\">Back</button></a>";
 		} else {
-			$refundedSum = $totalSum - 50;
-		}
-		if ($refundedSum < 0) {
 			$refundedSum = 0;
+			if($earliestDay > 7) {
+				$refundedSum = ($totalSum * .8) - 50;
+			} else if($earliestDay <= 7 and $earliestDay > 1) {
+				$refundedSum = ($totalSum * .5) - 50;
+			}
+			if ($refundedSum < 0) {
+				$refundedSum = 0;
+			}
+			$refundedSum = number_format("$refundedSum",2)."";
+
+			$_SESSION['totalKeep'] = $totalSum - $refundedSum;
+			$_SESSION['refunded']= $refundedSum;
+
+			echo " </br>";
+			echo "<form action=\"\" method=\"POST\">";
+			echo "Total Cost of Reservation: <input value=\"$$totalSum\" maxlength=\"20\"/>";
+			echo " </br> </br>";
+			echo "Date of Cancellation: <input value=\"$today\" maxlength=\"20\"/>";
+			echo " </br> </br>";
+			echo "Amount to be Refunded: <input value=\"$$refundedSum\" maxlength=\"20\"/>";
+			echo " </br> </br>";
+			echo "<a href=\"./chooseFuncCust.php\"><button type=\"button\">Back</button></a>";
+			echo "<input class=\"button\" type=\"submit\" name=\"cancel\" value=\"Submit\"/>";
 		}
-		$refundedSum = number_format("$refundedSum",2)."";
-
-		$_SESSION['refunded']= $refundedSum;
-
-		echo " </br>";
-		echo "<form action=\"\" method=\"POST\">";
-		echo "Total Cost of Reservation: <input value=\"$$totalSum\" maxlength=\"20\"/>";
-		echo " </br> </br>";
-		echo "Date of Cancellation: <input value=\"$today\" maxlength=\"20\"/>";
-		echo " </br> </br>";
-		echo "Amount to be Refunded: <input value=\"$$refundedSum\" maxlength=\"20\"/>";
-		echo " </br> </br>";
-		echo "<a href=\"./chooseFuncCust.php\"><button type=\"button\">Back</button></a>";
-		echo "<input class=\"button\" type=\"submit\" name=\"cancel\" value=\"Submit\"/>";
 		echo "</form>";
 	}
 }
 
 if(isset($_POST["cancel"])) {
+	$totalKeep = $_SESSION['totalKeep'];
 	$refundedSum = $_SESSION['refunded'];
 	$user = $_SESSION['userID'];
-	$reservationID = $_POST['reserveID'];
+	$reservationID = $_SESSION['reserveID'];
 	$numberOfCancelRows = $_SESSION['numberOfCancelRows'];
+
+	mysql_connect($host,$username,$password) or die("Unable to connect");
+	mysql_select_db($database) or die("Unable to select database");
 
 	echo "<font color=\"green\">";
 	echo "You're reservation has been cancelled and you have been refunded <u>$$refundedSum</u>!";
 	echo "</font>";
 
-	$refundedSum = $refundedSum/$numberOfCancelRows;
-	// $sql6 = "UPDATE Reservation SET Is_Cancelled=\"1\" WHERE User=\"$user\" AND Reservation_ID=\"$reservationID\"";
-	// mysql_query($sql6) or die(mysql_error());
+	$totalKeep = $totalKeep/$numberOfCancelRows;
+	$sql6 = "UPDATE Reservation SET Is_Cancelled=\"1\" WHERE Cust_User=\"$user\" AND Reservation_ID=\"$reservationID\"";
+	mysql_query($sql6) or die(mysql_error());
 	
-	//change the total cost somehow
-	// $sql7 = "UPDATE Reserves SET Total_Cost=\"$refundedSum\" WHERE Reservation_ID=\"$reservationID\"";
-	// mysql_query($sql7) or die(mysql_error());
+	$sql7 = "UPDATE Reserves SET Total_Cost=\"$totalKeep\" WHERE Reservation_ID=\"$reservationID\"";
+	mysql_query($sql7) or die(mysql_error());
 
 	echo "</br></br>";
 	echo "<a href=\"./chooseFuncCust.php\"><button type=\"button\">Back</button></a>";

@@ -28,7 +28,7 @@ include 'dbinfo.php';
 
 <?php
 
-
+$user = $_SESSION['userID'];
 
 mysql_connect($host,$username,$password) or die("Unable to connect");
 mysql_select_db($database) or die("Unable to select database");
@@ -134,7 +134,7 @@ if(isset($_POST["addCard"])) {
 		echo "<font color=\"red\">";
 		echo "You have to select a Year and a Date";
 		echo "</font>";
-	} else if($cardName != 1) { //if cardname unique
+	} else if($cardName == 1) { //if cardname unique
 		echo "<font color=\"red\">";
 		echo "This card number is already in our system";
 		echo "</font>";
@@ -145,10 +145,10 @@ if(isset($_POST["addCard"])) {
 
 		mysql_connect($host,$username,$password) or die("Unable to connect");
 		mysql_select_db($database) or die("Unable to select database");
-		
 
-		// $sql3 = "INSERT INTO PaymentInfo (Cust_User, Card_Number, CVV, Exp_Date, Name_on_Card) VALUES (\"$user\",\"$cardNumber\",\"$cardCVV\",\"\",\"$cardName\")";
-		// $result3 = mysql_query($sql3) or die(mysql_error());
+		$sql3 = "INSERT INTO PaymentInfo (Cust_User, Card_Number, CVV, Exp_Date, Name_on_Card) 
+				VALUES (\"$user\",\"$cardNumber\",\"$cardCVV\",\"$expDate\",\"$cardName\")";
+		$result3 = mysql_query($sql3) or die(mysql_error());
 		echo "<script type=\"text/javascript\">";
 	    echo "window.top.location=\"./MakeReservation3.php\"";
 	    echo "</script>";
@@ -167,8 +167,8 @@ if(isset($_POST["deleteCard"])) {
 		mysql_connect($host,$username,$password) or die("Unable to connect");
 		mysql_select_db($database) or die("Unable to select database");
 
-		// $sql4 = "DELETE FROM PaymentInfo WHERE Cust_User=\"$user \" AND Card_Number=\"$cardNum\"";
-		// mysql_query($sql4) or die(mysql_error());
+		$sql4 = "DELETE FROM PaymentInfo WHERE Cust_User=\"$user \" AND Card_Number=\"$cardNum\"";
+		mysql_query($sql4) or die(mysql_error());
 
 		echo "<script type=\"text/javascript\">";
 	    echo "window.top.location=\"./MakeReservation3.php\"";
