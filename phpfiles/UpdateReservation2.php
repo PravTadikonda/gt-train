@@ -121,6 +121,7 @@ if(isset($_POST['newDepartDate'])) {
 
 	$totalCost = $totalCost + $changeFee;
 	$_SESSION['totalCost'] = $totalCost;
+	$totalCost = number_format($totalCost, 2, '.', ',');
 
 
 	echo "<form action=\"\" method=\"POST\">";

@@ -50,23 +50,22 @@ if(isset($_POST['reservationID'])) {
 		echo "Put in a reservation ID";
 		echo "</font>";
 	} else {
-		//when we delete reservation, is the ID gone too?
-
 		$sql = "CREATE or REPLACE VIEW Departing as (SELECT Station.location as Depart, Stop.departure_time, Reserves.Train_Number
 				FROM Reserves JOIN Reservation NATURAL JOIN Train_Route natural join Stop natural join Station
 				WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND  Reserves.Reservation_ID = \"$reservationID\"
 				AND Reservation.Cust_User = \"$user\" AND Train_Route.train_number = Reserves.train_number
-				AND (Station.location=reserves.departs_from) order by Reserves.train_number)";
-		$result = mysql_query($sql) or die("The reservation ID does not exist");
+				AND (Station.location=reserves.departs_from) AND Departure_Date > CURDATE() order by Reserves.train_number)";
+		mysql_query($sql) or die("The reservation ID does not exist");
 
-		$sql2 = "SELECT Station.location as Arrive, Depart, departing.departure_time, Stop.arrival_time, Reserves.Train_Number, 
-					Departs_From, Arrives_At, Class, TRUNCATE(Train_Route.First_Class_Price, 2) as 1st,
-					TRUNCATE(Train_Route.Second_Class_Price, 2) as 2nd, TRUNCATE(Total_Cost, 2) as Total_Cost, Number_Baggages,
-					Passanger_Name, Day(Reserves.Departure_Date) as Day, Monthname(Reserves.Departure_Date) as Month, Departure_Date
-				FROM Reserves JOIN Reservation NATURAL JOIN Train_Route natural join Stop natural join Station JOIN Departing 
-				WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND  Reserves.Reservation_ID = \"$reservationID\"  
-				AND Reservation.Cust_User = \"$user\" AND Train_Route.train_number = Reserves.train_number 
-				AND Departing.Train_Number=Reserves.Train_Number AND Station.location=reserves.arrives_at
+		$sql2 = "SELECT Station.location as Arrive, Depart, departing.departure_time, Stop.arrival_time, Reserves.Train_Number,  
+					Departs_From, Arrives_At, Class, TRUNCATE(Train_Route.First_Class_Price, 2) as 1st, 
+					TRUNCATE(Train_Route.Second_Class_Price, 2) as 2nd, TRUNCATE(Total_Cost, 2) as Total_Cost, Number_Baggages, 
+					Passanger_Name, Day(Reserves.Departure_Date) as Day, Monthname(Reserves.Departure_Date) as Month, Departure_Date 
+				FROM Reserves JOIN Reservation NATURAL JOIN Train_Route natural join Stop natural join Station JOIN Departing  
+				WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND  Reserves.Reservation_ID = \"$reservationID\"   
+				AND Reservation.Cust_User = \"$user\" AND Train_Route.train_number = Reserves.train_number  
+				AND Departing.Train_Number=Reserves.Train_Number AND Station.location=reserves.arrives_at  
+				AND Departure_Date > CURDATE() AND departing.departure_time < Stop.arrival_time 
 				ORDER BY Reserves.train_number";
 		$result2 = mysql_query($sql2) or die(mysql_error());
 
@@ -75,9 +74,16 @@ if(isset($_POST['reservationID'])) {
 				AND Reserves.Reservation_ID = \"$reservationID\" AND Is_Cancelled =\"0\"";
 		$result4 = mysql_query($sql4) or die(mysql_error());
 
-		if(mysql_num_rows($result2) == 0) {
+		$sql3 = "SELECT Reservation_ID from Reservation where Cust_User=\"$user\" and reservation_id=\"$reservationID\"";
+		$result3 = mysql_query($sql3) or die(mysql_error());
+
+		if(mysql_num_rows($result3) == 0) {
 			echo "<font color=\"red\">";
-			echo "This reservation ID does not exist for you.";
+			echo "This reservation ID does not exist for you";
+			echo "</font>";
+		} else if(mysql_num_rows($result2) == 0) {
+			echo "<font color=\"red\">";
+			echo "All dates have passed.";
 			echo "</font>";
 		} else if(mysql_num_rows($result4) == 0) {
 			echo "<font color=\"red\">";
@@ -169,9 +175,23 @@ if(isset($_POST["reserve"])) {
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
 
-	echo "<script type=\"text/javascript\">";
-	echo "window.top.location=\"./UpdateReservation2.php\"";
-	echo "</script>";
+	$sql = "SELECT CURDATE()";
+	$result = mysql_query($sql) or die(mysql_error());
+	$today = mysql_fetch_array($result)[0];
+
+	$sql = "SELECT TIMESTAMPDIFF(hour, CURDATE(), \"$departDate\")";
+	$result = mysql_query($sql) or die(mysql_error());
+	$difference = mysql_fetch_array($result)[0];
+
+	if ($difference < 1) {
+		echo "<font color=\"red\">";
+		echo "You cannot selected reservation";
+		echo "</font>";
+	} else {
+		echo "<script type=\"text/javascript\">";
+		echo "window.top.location=\"./UpdateReservation2.php\"";
+		echo "</script>";
+	}
 }
 ?>
 

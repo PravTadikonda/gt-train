@@ -33,10 +33,10 @@ $user = $_SESSION['userID'];
 mysql_connect($host,$username,$password) or die("Unable to connect");
 mysql_select_db($database) or die("Unable to select database");
 
-echo "<form action=\"\" method=\"POST\">";
 echo "<table>";
 	echo "<tr>";
 		echo "<td>";
+			echo "<form action=\"\" method=\"POST\">";
 			echo "<table id=\"addCard\">";
 				echo "<tr>";
 					echo "<td><font size=\"4\"/>Name on Card:</td>";
@@ -48,7 +48,7 @@ echo "<table>";
 				echo "</tr>";
 				echo "<tr>";
 					echo "<td><font size=\"4\"/>CVV:</td>";
-					echo "<td><input pattern=\".{3,}\" required title=\"16 characters minimum\" type=\"text\" name=\"cardCVV\" maxlength=\"3\"/></td>";
+					echo "<td><input pattern=\".{3,}\" required title=\"3 characters minimum\" type=\"text\" name=\"cardCVV\" maxlength=\"3\"/></td>";
 				echo "</tr>";
 				echo "<tr>";
 					echo "<td><font size=\"4\"/>Expiration Date:</td>";
@@ -89,11 +89,13 @@ echo "<table>";
 					echo "<td colspan=\"2\" align=\"center\"><input class=\"button\" name=\"addCard\" type=\"submit\" value=\"Save\"/></td>";
 				echo "</tr>";
 			echo "</table>";
+			echo "</form>";
 		echo "</td>";
 		echo "<td>";
+			echo "<form action=\"\" method=\"POST\">";
 			echo "<table id=\"deleteCard\">";
 				echo "<tr>";
-					$sql = "SELECT Card_Number FROM PaymentInfo WHERE Cust_User=\"$user\"";
+					$sql = "SELECT Card_Number FROM PaymentInfo WHERE Cust_User=\"$user\" AND Card_Number NOT LIKE \"placeholder%\"";
 					$result = mysql_query($sql) or die (mysql_error());
 					echo "<td>Card Number:</td>";
 					echo "<td><select name=\"card_num\">";
@@ -109,11 +111,10 @@ echo "<table>";
 					echo "<td colspan=\"2\" align=\"center\"><input class=\"button\" type=\"submit\" name=\"deleteCard\" value=\"Delete\"/></td>";
 				echo "</tr>";
 			echo "</table>";
+			echo "</form>";
 		echo "</td>";
 	echo "</tr>";
 echo "</table>";
-echo "</form>";
-
 
 if(isset($_POST["addCard"])) {
 	$user = $_SESSION['userID'];
@@ -122,6 +123,16 @@ if(isset($_POST["addCard"])) {
 	$cardCVV = $_POST['cardCVV'];
 	$cardMonth = $_POST['month'];
 	$cardYear = $_POST['year'];
+
+	date_default_timezone_set('America/New_York');
+	$expDate = Date("$cardYear-$cardMonth-01");
+
+	mysql_connect($host,$username,$password) or die("Unable to connect");
+	mysql_select_db($database) or die("Unable to select database");
+
+	$sql5 = "SELECT CURDATE()";
+    $result5 = mysql_query($sql5) or die(mysql_error());
+    $today = mysql_fetch_array($result5)[0];
 
 	$sql2 = "SELECT Card_Number FROM PaymentInfo WHERE Card_Number=\"$cardNumber\"";
 	$result2 = mysql_query($sql2) or die(mysql_error());
@@ -142,13 +153,11 @@ if(isset($_POST["addCard"])) {
 		echo "<font color=\"red\">";
 		echo "Card number and CVV have to be number inputs";
 		echo "</font>";
+	} else if($expDate <= $today) {
+		echo "<font color=\"red\">";
+		echo "This card has already expired";
+		echo "</font>";
 	} else {
-		date_default_timezone_set('America/New_York');
-		$expDate = Date("$cardYear-$cardMonth-01");
-
-		mysql_connect($host,$username,$password) or die("Unable to connect");
-		mysql_select_db($database) or die("Unable to select database");
-
 		$sql3 = "INSERT INTO PaymentInfo (Cust_User, Card_Number, CVV, Exp_Date, Name_on_Card) 
 				VALUES (\"$user\",\"$cardNumber\",\"$cardCVV\",\"$expDate\",\"$cardName\")";
 		$result3 = mysql_query($sql3) or die(mysql_error());
@@ -170,12 +179,36 @@ if(isset($_POST["deleteCard"])) {
 		mysql_connect($host,$username,$password) or die("Unable to connect");
 		mysql_select_db($database) or die("Unable to select database");
 
-		$sql4 = "DELETE FROM PaymentInfo WHERE Cust_User=\"$user \" AND Card_Number=\"$cardNum\"";
-		mysql_query($sql4) or die(mysql_error());
+		//get biggest placeholder value
+		$sql = "";
+		$result = mysql_query($sql) or die(mysql_error());
+		$placeholder = ""; // *testing*
 
-		echo "<script type=\"text/javascript\">";
-	    echo "window.top.location=\"./MakeReservation3.php\"";
-	    echo "</script>";
+		if($placeholder == "") {
+			$placeholder = "placeholder000000";
+		} else {
+			$holderVal = intval(str_replace("placeholder", "", "$placeholder"));
+			$holderVal++;
+			$holderVal = sprintf("%05d", $holderVal);
+			$placeholder = "placeholder" . $holderVal;
+		}	
+		
+		//get departure dates that > today for given cardnum & user
+		$sql2 = "";
+		$result2 = mysql_query($sql2) or die(mysql_error());
+		if (mysql_num_rows($result2) > 0) {
+			echo "<font color=\"red\">";
+			echo "You have future reservations for this card";
+			echo "</font>";
+		} else {
+			//update what you need to 
+			$sql3 = "";
+			mysql_query($sql3) or die(mysql_error());
+
+			echo "<script type=\"text/javascript\">";
+		    echo "window.top.location=\"./MakeReservation3.php\"";
+		    echo "</script>";
+		}
 	}
 }
 ?>

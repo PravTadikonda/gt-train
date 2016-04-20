@@ -29,12 +29,13 @@ include 'dbinfo.php';
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
 
-	$sql = "SELECT MONTHNAME(Departure_Date), train_number, count(month(departure_date)) 
+	$sql = "SELECT MONTHNAME(Departure_Date), train_number, count(month(departure_date)), MONTH(Departure_Date) AS MonthDate
 			FROM (SELECT Train_Number, Departure_Date 
 				FROM Train_Route NATURAL JOIN Reserves NATURAL JOIN Reservation NATURAL JOIN Customer 
 				WHERE Departure_Date BETWEEN Date_Sub(DATE_FORMAT(NOW() ,'%Y-%m-01'), INTERVAL 2 MONTH) AND CURDATE() 
 				AND Is_Cancelled = \"0\") AS A
-			GROUP BY MONTHNAME(Departure_Date), Train_Number";
+			GROUP BY MONTHNAME(Departure_Date), Train_Number, MonthDate
+			ORDER BY MonthDate";
 
 	$result = mysql_query($sql) or die(mysql_error());
 
@@ -61,7 +62,7 @@ include 'dbinfo.php';
 ?>
 
 <p>
-	<a href="./chooseFuncMang.php"><button type="button">Back</button></a>
+	<a href="./ChooseFuncMang.php"><button type="button">Back</button></a>
 </p>
 
 </center>

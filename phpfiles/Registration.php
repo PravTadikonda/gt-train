@@ -41,7 +41,6 @@ include 'dbinfo.php';
 
 <br/>
 <p>
-	<!-- <a href="./ChooseFunc.php"><input type="submit">Create</button></a> -->
 	<input class="button" type="submit" name="submit" value="Create"/>
 </p>
 </form>
@@ -59,6 +58,9 @@ if(isset($_POST['user'],$_POST['pass'],$_POST['passConfirm'],$_POST['email'])){
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
 
+	$sql = "SELECT Email FROM Customer WHERE Email = \"$email\"";
+	$result = mysql_query($sql) or die(mysql_error());
+
 	if (empty($pass) or empty($email) or empty($user)) {
 		echo "<font color=\"red\">";
 		echo "Some fields are not filled in";
@@ -70,6 +72,10 @@ if(isset($_POST['user'],$_POST['pass'],$_POST['passConfirm'],$_POST['email'])){
 	} else if($pass!=$passconfirm){
 		echo "<font color=\"red\">";
 		echo "Passwords don't match";
+		echo "</font>";
+	} else if(mysql_num_rows($result) > 0) {
+		echo "<font color=\"red\">";
+		echo "This e-mail has already been added";
 		echo "</font>";
 	} else {
 		$sql = "SELECT * FROM User WHERE Username = \"$user\"";

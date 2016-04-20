@@ -74,7 +74,11 @@ echo "<table border=\"1\" bordercolor=\"black\">";
         echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Remove</td>";
     echo "</tr>";
     foreach ($allReservations as $reserve) {
-        $sql3 = "SELECT hour(timediff(\"$reserve[11]\", \"$reserve[12]\")), minute(timediff(\"$reserve[11]\", \"$reserve[12]\"))";
+        if ($reserve[11] > $reserve[12]) {
+            $sql3 = "SELECT hour(timediff(\"-24:00:00\", timediff(\"$reserve[12]\", \"$reserve[11]\"))), minute(timediff(\"-24:00:00\", timediff(\"$reserve[12]\", \"$reserve[11]\")))";
+        } else {
+            $sql3 = "SELECT hour(timediff(\"$reserve[11]\", \"$reserve[12]\")), minute(timediff(\"$reserve[11]\", \"$reserve[12]\"))";
+        }
         $result3 = mysql_query($sql3) or die(mysql_error());
         $difference = mysql_fetch_array($result3);
         $hourDiff = $difference[0];
@@ -124,12 +128,14 @@ if ($student == 1) {
     echo "</font>";
     $allTotalSum = $allTotalSum * .8;
 }
+
+$allTotalSum = number_format($allTotalSum, 2, '.', ',');
 echo "</br>";
 
 echo "Total Cost of Reservation: <input value=\"$$allTotalSum\" maxlength=\"20\"/>";
 echo "</br></br>";
 
-$sql2 = "SELECT Card_Number FROM PaymentInfo WHERE Cust_User=\"$user\"";
+$sql2 = "SELECT Card_Number FROM PaymentInfo WHERE Cust_User=\"$user\" AND Card_Number NOT LIKE \"placeholder%\"";
 $result2 = mysql_query($sql2) or die (mysql_error());
 echo "<font size=\"4\"/>Use Card:";
 echo "<select name=\"reserveCard\">";
@@ -176,7 +182,7 @@ if(isset($_POST["confirm"])) {
             $reservationID = rand(10000, 99999);
         }
         $_SESSION['reserveID'] = $reservationID;
-        
+
         $sql2 = "INSERT INTO Reservation (Reservation_ID, Is_Cancelled, Card_Number, Cust_User) 
                 VALUES (\"$reservationID\",\"0\",\"$cardNum\",\"$user\")";
         mysql_query($sql2) or die(mysql_error());

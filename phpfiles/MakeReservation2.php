@@ -31,23 +31,23 @@ $sql = "CREATE OR REPLACE VIEW reservStation AS (SELECT Name, Stop.Train_Number,
         Second_Class_Price FROM Stop JOIN Train_Route WHERE Stop.Train_Number = Train_Route.Train_Number)";
 mysql_query($sql) or die(mysql_error());
 
-//check to make sure no negative times
 $sql2 = "SELECT Arrival_Station.Train_Number, Departure_Station.Departure_Time, Arrival_Station.Arrival_Time, 
         Arrival_Station.First_Class_Price, Arrival_Station.Second_Class_Price 
         FROM reservStation Arrival_Station JOIN reservStation Departure_Station 
         WHERE Arrival_Station.Train_Number = Departure_Station.Train_Number AND Arrival_Station.Name != Departure_Station.Name 
-        AND Departure_Station.Name = \"$departName\" AND Arrival_Station.Name = \"$arriveName\";";
+        AND Departure_Station.Name = \"$departName\" AND Arrival_Station.Name = \"$arriveName\"";
+        // AND Departure_Station.Departure_Time < Arrival_Station.Arrival_Time";
 $result2 = mysql_query($sql2) or die(mysql_error());
 
 if(mysql_num_rows($result2) == 0) {
     echo "<font color=\"red\">";
-    echo "You cannot make those reservations with those stops.$departName";
+    echo "You cannot make those reservations with those stops.";
     echo "</font>";
     echo "</br></br>";
     echo "<a href=\"./MakeReservation1.php\"><button type=\"button\">Back</button></a>";
 } else {
     echo "<form action=\"\" method=\"POST\">";
-    echo "<table border=\"1\" bordercolor=\"black\">";
+    echo "<table style=\"border-style:none\" border=\"1\" cellspacing=\"0\">";
     echo "<tr>";
         echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Train Number</td>";
         echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Duration</td>";
@@ -56,7 +56,11 @@ if(mysql_num_rows($result2) == 0) {
     echo "</tr>";
 
     while($row = mysql_fetch_array($result2)) {
-        $sql3 = "SELECT hour(timediff(\"$row[1]\", \"$row[2]\")), minute(timediff(\"$row[1]\", \"$row[2]\"))";
+        if ($row[1] > $row[2]) {
+            $sql3 = "SELECT hour(timediff(\"-24:00:00\", timediff(\"$row[2]\", \"$row[1]\"))), minute(timediff(\"-24:00:00\", timediff(\"$row[2]\", \"$row[1]\")))";
+        } else {
+            $sql3 = "SELECT hour(timediff(\"$row[1]\", \"$row[2]\")), minute(timediff(\"$row[1]\", \"$row[2]\"))";
+        }
         $result3 = mysql_query($sql3) or die(mysql_error());
         $difference = mysql_fetch_array($result3);
         $hourDiff = $difference[0];
@@ -68,8 +72,11 @@ if(mysql_num_rows($result2) == 0) {
             echo "<td bgcolor=\"#e6f3ff\"><center/>$row[0]</td>";
             echo "<td bgcolor=\"#e6f3ff\">$departTimeFormat - $arrivalTimeFormat
                     </br>$hourDiff hrs $minDiff mins</td>";
-            echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"price\" value=\"$row[3]_1_$row[0]_$row[1]_$row[2]\"/>$row[3]</td>";
-            echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"price\" value=\"$row[4]_2_$row[0]_$row[1]_$row[2]\"/>$row[4]</td>";
+            echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"price\" value=\"$row[3]_1_$row[0]_$row[1]_$row[2]\"/>$$row[3]</td>";
+            echo "<td bgcolor=\"#e6f3ff\"><center/><input type=\"radio\" name=\"price\" value=\"$row[4]_2_$row[0]_$row[1]_$row[2]\"/>$$row[4]</td>";
+            if ($row[1] > $row[2]) {
+                echo "<td style=\"border-style:none\"><center/><font color=\"red\">*Next Day</br>Arrival</font></td>";
+            }
         echo "</tr>";
     }
     echo "</table>";

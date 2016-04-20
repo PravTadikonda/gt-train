@@ -37,16 +37,28 @@ if(isset($_POST["reservationID"])) {
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
 
+	//get the dates
+	// $sql7 = "CREATE OR REPLACE VIEW reservStation AS (SELECT Name, Stop.Train_Number, Arrival_Time, Departure_Time, First_Class_Price,
+	//         Second_Class_Price FROM Stop JOIN Train_Route WHERE Stop.Train_Number = Train_Route.Train_Number)";
+	// mysql_query($sql7) or die(mysql_error());
+
+	// $sql8 = "SELECT Arrival_Station.Train_Number, Departure_Station.Departure_Time, Arrival_Station.Arrival_Time,
+	//         FROM reservStation Arrival_Station JOIN reservStation Departure_Station 
+	//         WHERE Arrival_Station.Train_Number = Departure_Station.Train_Number AND Arrival_Station.Name != Departure_Station.Name 
+	//         AND Departure_Station.Name = \"$departName\" AND Arrival_Station.Name = \"$arriveName\"
+	//         AND Departure_Station.Departure_Time < Arrival_Station.Arrival_Time";
+	// mysql_query($sql8) or die(mysql_error());
+
 	$sql = "SELECT Departure_Date, Monthname(Departure_Date) as Month, Day(Departure_Date) as Day, Second_Class_Price, First_Class_Price, Reserves.Train_Number, Departs_From, Arrives_At, Class, 
 			TRUNCATE(Total_Cost, 2) AS TC, Number_Baggages, Passanger_Name
 			FROM Reserves JOIN Reservation NATURAL JOIN Train_Route 
 			WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND Reserves.Reservation_ID = \"$reservationID\" 
-			AND Reservation.Cust_User = \"$user\" AND Reserves.Train_Number = Train_Route.Train_Number AND Departure_Date > now()";
+			AND Reservation.Cust_User = \"$user\" AND Reserves.Train_Number = Train_Route.Train_Number AND Departure_Date > CURDATE()";
 	$result = mysql_query($sql) or die(mysql_error());
 	
 	$sql2 = "SELECT Sum(TRUNCATE(Total_Cost, 2)) AS TC FROM Reserves JOIN Reservation NATURAL JOIN Train_Route 
 			WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND Reserves.Reservation_ID = \"$reservationID\" 
-			AND Reservation.Cust_User = \"$user\" AND Reserves.Train_Number = Train_Route.Train_Number AND Departure_Date > now()";
+			AND Reservation.Cust_User = \"$user\" AND Reserves.Train_Number = Train_Route.Train_Number AND Departure_Date > CURDATE()";
 	$result2 = mysql_query($sql2) or die(mysql_error());
 	$totalSum = mysql_fetch_array($result2)[0];
 
@@ -90,13 +102,23 @@ if(isset($_POST["reservationID"])) {
 			} else { 
 				$classNum = "$row[Second_Class_Price]"; 
 			}
-			$sql5 = "SELECT TIMESTAMPDIFF(day, now(), \"$row[Departure_Date]\")";
+			$sql5 = "SELECT TIMESTAMPDIFF(day, CURDATE(), \"$row[Departure_Date]\")";
 			$result5 = mysql_query($sql5) or die(mysql_error());
 			$difference = mysql_fetch_array($result5)[0];
 			if ($difference < $earliestDay and $difference >= 0) {
 				$earliestDate = $row["Departure_Date"];
 				$earliestDay = $difference;
 			}
+
+			// $sql6 = "SELECT hour(timediff(\"$row[3]\", \"$row[2]\")), minute(timediff(\"$row[3]\", \"$row[2]\"))";
+	  //       $result6 = mysql_query($sql3) or die(mysql_error());
+	  //       $difference = mysql_fetch_array($result3);
+	  //       $hourDiff = $difference[0];
+	  //       $minDiff = $difference[1];
+
+	  //       $arrivalTimeFormat = DATE("g:iA", strtotime("$row[3]"));
+	  //       $departTimeFormat = DATE("g:iA", strtotime("$row[2]"));
+
 			echo "<tr>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Train_Number]</td>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Month]&nbsp$row[Day]</td>";
@@ -109,8 +131,7 @@ if(isset($_POST["reservationID"])) {
 			echo "</tr>";
 		}
 		echo "</table>";
-
-		if ($earliestDay <= 1) {
+		if ($earliestDay < 1) {
 			echo " </br></br>";
 			echo "<font color=\"red\">";
 			echo "You cannot cancel at this time";
@@ -121,7 +142,7 @@ if(isset($_POST["reservationID"])) {
 			$refundedSum = 0;
 			if($earliestDay > 7) {
 				$refundedSum = ($totalSum * .8) - 50;
-			} else if($earliestDay <= 7 and $earliestDay > 1) {
+			} else if($earliestDay <= 7 and $earliestDay >= 1) {
 				$refundedSum = ($totalSum * .5) - 50;
 			}
 			if ($refundedSum < 0) {
