@@ -194,7 +194,9 @@ if(isset($_POST["confirm"])) {
             } else if($addReserve[6] == 4) {
                 $totalSum = $totalSum + 60;
             }
-            $sql3 = "INSERT INTO Reserves (Train_Number, Reservation_ID, Class, Departure_Date, Passanger_Name, Number_Baggages, Departs_From, Arrives_At, Total_Cost) VALUES (\"$addReserve[10]\",\"$reservationID\",\"$addReserve[9]\",\"$addReserve[5]\",\"$addReserve[7]\",\"$addReserve[6]\",\"$addReserve[2]\",\"$addReserve[4]\",\"$totalSum\")";
+            $sql3 = "INSERT INTO Reserves (Train_Number, Reservation_ID, Class, Departure_Date, Passanger_Name, Number_Baggages, 
+                Departs_From, Arrives_At, Total_Cost) VALUES (\"$addReserve[10]\",\"$reservationID\",\"$addReserve[9]\",
+                \"$addReserve[5]\",\"$addReserve[7]\",\"$addReserve[6]\",\"$addReserve[2]\",\"$addReserve[4]\",\"$totalSum\")";
             mysql_query($sql3) or die(mysql_error());
         }
 

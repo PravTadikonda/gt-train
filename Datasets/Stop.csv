@@ -1,0 +1,33 @@
+Name,Train_Number,Arrival_Time,Departure_Time
+Amazon Suites,38 Valkyria,16:00:00,16:50:00
+Amazon Suites,74 Voyager,16:00:00,16:50:00
+Amazon Suites,690 Choo Choo,17:00:00,17:50:00
+Brightkey Capital,38 Valkyria,14:00:00,14:50:00
+Brightkey Capital,3000 Great Gatsby,16:00:00,16:50:00
+Brightkey Capital,74 Voyager,14:00:00,14:50:00
+Brightkey Capital,690 Choo Choo,13:00:00,13:50:00
+Burdell Cabin,2600 Ghostrider,16:00:00,16:50:00
+Burdell Cabin,38 Valkyria,8:00:00,8:50:00
+Burdell Cabin,3000 Great Gatsby,12:00:00,12:50:00
+Burdell Cabin,23 Eagle,16:00:00,16:50:00
+Burdell Cabin,74 Voyager,8:00:00,8:50:00
+Burdell Cabin,39 Express,14:00:00,14:50:00
+Burdell Cabin,65 Regional,16:00:00,16:50:00
+Gardenview Station,2600 Ghostrider,12:00:00,12:50:00
+Gardenview Station,23 Eagle,12:00:00,12:50:00
+Gardenview Station,39 Express,8:00:00,8:50:00
+Gardenview Station,65 Regional,12:00:00,12:50:00
+Grand Central,2600 Ghostrider,14:00:00,14:50:00
+Grand Central,3000 Great Gatsby,8:00:00,8:50:00
+Grand Central,23 Eagle,14:00:00,14:50:00
+Grand Central,39 Express,12:00:00,12:50:00
+Grand Central,65 Regional,14:00:00,14:50:00
+Tableview Plaza,38 Valkyria,12:00:00,12:50:00
+Tableview Plaza,3000 Great Gatsby,14:00:00,14:50:00
+Tableview Plaza,74 Voyager,12:00:00,12:50:00
+Tableview Plaza,39 Express,16:00:00,16:50:00
+Tableview Plaza,690 Choo Choo,9:00:00,9:50:00
+Train Crossing,2600 Ghostrider,8:00:00,8:50:00
+Train Crossing,23 Eagle,8:00:00,8:50:00
+Train Crossing,65 Regional,8:00:00,8:50:00
+Train Crossing,690 Choo Choo,19:00:00,19:50:00

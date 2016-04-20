@@ -73,9 +73,16 @@ if(isset($_POST['trainNum'],$_POST['rating'])) {
 			echo "This train number does not exist";
 			echo "</font>";
 		} else {
-			$sql2 = "SELECT * FROM Review";
-			$result2 = mysql_query($sql2) or die(mysql_error());
-			$reviewNum = mysql_num_rows($result2) + 1;
+			$reviewNum = rand(100000, 999999);
+	        $numList = array();
+	        $sql2 = "SELECT Review_Num FROM Reservation";
+	        $result2 = mysql_query($sql2) or die();
+	        while ($row = mysql_fetch_array($result2)) {
+	            $numList[] = $row[0];
+	        }
+	        while (in_array($reviewNum, $numList)) {
+	            $reviewNum = rand(100000, 999999);
+	        }
 
 			$sql3 = "INSERT INTO Review (Review_Num, Comment, Rating, Cust_User, Train_Number) VALUES (\"$reviewNum\", \"$comment\", \"$rating\", \"$user\", \"$trainNum\")";
 			mysql_query($sql3) or die(mysql_error());
