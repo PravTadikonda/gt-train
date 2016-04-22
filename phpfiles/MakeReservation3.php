@@ -139,7 +139,7 @@ $sql2 = "SELECT Card_Number FROM PaymentInfo WHERE Cust_User=\"$user\" AND Card_
 $result2 = mysql_query($sql2) or die (mysql_error());
 echo "<font size=\"4\"/>Use Card:";
 echo "<select name=\"reserveCard\">";
-    echo "<option value=\"Nothing\">--</option>";
+    echo "<option value=\"Nothing\">----</option>";
     while($row = mysql_fetch_array($result2)){
         $cardNum = substr($row[0], -4);
         echo "<option value=\"$row[0]\">$cardNum</option>";

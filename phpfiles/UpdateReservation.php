@@ -39,13 +39,14 @@ if(isset($_POST['reservationID'])) {
 	$reservationID = $_POST['reservationID'];
 	$_SESSION['reservationID'] = $reservationID;
 	$user = $_SESSION['userID'];
+	$_SESSION['samePage'] = False;
 	
 	date_default_timezone_set('America/New_York');
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
 
 
-	if (empty($reservationID)) {
+	if (empty($reservationID) and $reservationID !== "00000") {
 		echo "<font color=\"red\">";
 		echo "Put in a reservation ID";
 		echo "</font>";
@@ -65,7 +66,7 @@ if(isset($_POST['reservationID'])) {
 				WHERE Reserves.Reservation_ID = Reservation.Reservation_ID AND  Reserves.Reservation_ID = \"$reservationID\"   
 				AND Reservation.Cust_User = \"$user\" AND Train_Route.train_number = Reserves.train_number  
 				AND Departing.Train_Number=Reserves.Train_Number AND Station.location=reserves.arrives_at  
-				AND Departure_Date > CURDATE() AND departing.departure_time < Stop.arrival_time 
+				AND Departure_Date > CURDATE() 
 				ORDER BY Reserves.train_number";
 		$result2 = mysql_query($sql2) or die(mysql_error());
 

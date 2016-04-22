@@ -88,49 +88,62 @@ if(isset($_POST['newDepartDate'])) {
 	$_SESSION['newDepartDate'] = $newDepartDate;
 	$totalCost = $_SESSION['totalCost'];
 	$monthDay = date("F jS", strtotime($newDepartDate));
+	$samePage = $_SESSION['samePage'];
 
-	echo "Updated Train Ticket";
-	echo "<table border=\"1\" bordercolor=\"black\">";
-	    echo "<tr>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Train Number</td>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Duration</td>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Departs From</td>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Arrives At</td>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Class</td>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Price</td>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Number of Baggages</td>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Passanger Name</td>";
-	    echo "</tr>";
-	    echo "<tr>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/>$trainNum</td>";
-	        echo "<td bgcolor=\"#e6f3ff\">$monthDay $departTimeFormat - $arrivalTimeFormat</br>$hourDiff hrs $minDiff mins</td>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/>$departLocation</td>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/>$arriveLocation</td>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/>$class</td>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/>$$price</td>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/>$numBags</td>";
-	        echo "<td bgcolor=\"#e6f3ff\"><center/>$passangerName</td>";
-	    echo "</tr>";
-	echo "</table>";
+	$sql = "SELECT CURDATE()";
+    $result = mysql_query($sql) or die(mysql_error());
+    $today = mysql_fetch_array($result)[0];
 
-	$sql2 = "SELECT Change_Fee FROM SystemInfo";
-	$result2 = mysql_query($sql2) or die(mysql_error());
-	$changeFee = mysql_fetch_array($result2)[0];
-	echo "</br>";
-	echo "Change Fee: <input value=\"$$changeFee\" maxlength=\"20\"/>";
+    if($today > $newDepartDate) {
+        echo "<font color=\"red\">";
+        echo "You can't pick a date in the past";
+        echo "</font>";
+    } else {
+    	echo "Updated Train Ticket";
+		echo "<table border=\"1\" bordercolor=\"black\">";
+		    echo "<tr>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Train Number</td>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Duration</td>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Departs From</td>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Arrives At</td>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Class</td>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Price</td>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Number of Baggages</td>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Passanger Name</td>";
+		    echo "</tr>";
+		    echo "<tr>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/>$trainNum</td>";
+		        echo "<td bgcolor=\"#e6f3ff\">$monthDay $departTimeFormat - $arrivalTimeFormat</br>$hourDiff hrs $minDiff mins</td>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/>$departLocation</td>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/>$arriveLocation</td>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/>$class</td>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/>$$price</td>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/>$numBags</td>";
+		        echo "<td bgcolor=\"#e6f3ff\"><center/>$passangerName</td>";
+		    echo "</tr>";
+		echo "</table>";
 
-	$totalCost = $totalCost + $changeFee;
-	$_SESSION['totalCost'] = $totalCost;
-	$totalCost = number_format($totalCost, 2, '.', ',');
-
-
-	echo "<form action=\"\" method=\"POST\">";
-	echo "</br>";
-	echo "Updated Total Cost: <input value=\"$$totalCost\" maxlength=\"20\"/>";
-	echo "</br></br>";
-    echo "<a href=\"./UpdateReservation.php\"><button type=\"button\">Back</button></a>";
-	echo "<input class=\"button\" type=\"submit\" name=\"submit\" value=\"Submit\"/>";
-	echo "</form>";
+		$sql2 = "SELECT Change_Fee FROM SystemInfo";
+		$result2 = mysql_query($sql2) or die(mysql_error());
+		$changeFee = mysql_fetch_array($result2)[0];
+		echo "</br>";
+		echo "Change Fee: <input value=\"$$changeFee\" maxlength=\"20\"/>";
+		
+		if(!$samePage) {
+			$totalCost = $totalCost + $changeFee;
+			$_SESSION['totalCost'] = $totalCost;
+			$_SESSION['samePage'] = True;
+		}
+		$totalCost = number_format($totalCost, 2, '.', ',');
+			
+		echo "<form action=\"\" method=\"POST\">";
+		echo "</br>";
+		echo "Updated Total Cost: <input value=\"$$totalCost\" maxlength=\"20\"/>";
+		echo "</br></br>";
+	    echo "<a href=\"./UpdateReservation.php\"><button type=\"button\">Back</button></a>";
+		echo "<input class=\"button\" type=\"submit\" name=\"submit\" value=\"Submit\"/>";
+		echo "</form>";
+    }
 }
 
 if(isset($_POST['submit'])) {

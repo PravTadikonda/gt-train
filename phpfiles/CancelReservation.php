@@ -34,20 +34,11 @@ if(isset($_POST["reservationID"])) {
 	$user = $_SESSION['userID'];
 	$_SESSION['reserveID'] = $reservationID;
 
+	$departTime = $_SESSION['depart_time'];
+	$arriveTime = $_SESSION['arrive_time'];
+
 	mysql_connect($host,$username,$password) or die("Unable to connect");
 	mysql_select_db($database) or die("Unable to select database");
-
-	//get the dates
-	// $sql7 = "CREATE OR REPLACE VIEW reservStation AS (SELECT Name, Stop.Train_Number, Arrival_Time, Departure_Time, First_Class_Price,
-	//         Second_Class_Price FROM Stop JOIN Train_Route WHERE Stop.Train_Number = Train_Route.Train_Number)";
-	// mysql_query($sql7) or die(mysql_error());
-
-	// $sql8 = "SELECT Arrival_Station.Train_Number, Departure_Station.Departure_Time, Arrival_Station.Arrival_Time,
-	//         FROM reservStation Arrival_Station JOIN reservStation Departure_Station 
-	//         WHERE Arrival_Station.Train_Number = Departure_Station.Train_Number AND Arrival_Station.Name != Departure_Station.Name 
-	//         AND Departure_Station.Name = \"$departName\" AND Arrival_Station.Name = \"$arriveName\"
-	//         AND Departure_Station.Departure_Time < Arrival_Station.Arrival_Time";
-	// mysql_query($sql8) or die(mysql_error());
 
 	$sql = "SELECT Departure_Date, Monthname(Departure_Date) as Month, Day(Departure_Date) as Day, Second_Class_Price, First_Class_Price, Reserves.Train_Number, Departs_From, Arrives_At, Class, 
 			TRUNCATE(Total_Cost, 2) AS TC, Number_Baggages, Passanger_Name
@@ -95,6 +86,7 @@ if(isset($_POST["reservationID"])) {
 		$earliestDay = 1000000000;
 		$earliestDate = 'Nothing';
 		$_SESSION['numberOfCancelRows'] = mysql_num_rows($result);
+		date_default_timezone_set('America/New_York');
 
 		while($row = mysql_fetch_array($result)) {
 			if ("$row[Class]" == 1) { 
@@ -109,19 +101,30 @@ if(isset($_POST["reservationID"])) {
 				$earliestDate = $row["Departure_Date"];
 				$earliestDay = $difference;
 			}
+			$sql6 = "SELECT Arrival_Time FROM reservstation WHERE Train_number=\"$row[Train_Number]\" AND Location=\"$row[Arrives_At]\" ORDER BY train_number";
+			$result6 = mysql_query($sql6) or die(mysql_error());
+			$arriveTime = mysql_fetch_array($result6)[0];
+			$sql7 = "SELECT Departure_Time FROM reservstation WHERE Train_number=\"$row[Train_Number]\" AND Location=\"$row[Departs_From]\" ORDER BY train_number";
+			$result7 = mysql_query($sql7) or die(mysql_error());
+			$departTime = mysql_fetch_array($result7)[0];
 
-			// $sql6 = "SELECT hour(timediff(\"$row[3]\", \"$row[2]\")), minute(timediff(\"$row[3]\", \"$row[2]\"))";
-	  //       $result6 = mysql_query($sql3) or die(mysql_error());
-	  //       $difference = mysql_fetch_array($result3);
-	  //       $hourDiff = $difference[0];
-	  //       $minDiff = $difference[1];
 
-	  //       $arrivalTimeFormat = DATE("g:iA", strtotime("$row[3]"));
-	  //       $departTimeFormat = DATE("g:iA", strtotime("$row[2]"));
+			if ($departTime > $arriveTime) {
+	            $sql8 = "SELECT hour(timediff(\"-24:00:00\", timediff(\"$arriveTime\", \"$departTime\"))), minute(timediff(\"-24:00:00\", timediff(\"$arriveTime\", \"$departTime\")))";
+	        } else {
+	            $sql8 = "SELECT hour(timediff(\"$arriveTime\", \"$departTime\")), minute(timediff(\"$arriveTime\", \"$departTime\"))";
+	        }
+	        $result8 = mysql_query($sql8) or die(mysql_error());
+	        $difference = mysql_fetch_array($result8);
+	        $hourDiff = $difference[0];
+	        $minDiff = $difference[1];
+
+	        $arrivalTimeFormat = DATE("g:iA", strtotime("$arriveTime"));
+	        $departTimeFormat = DATE("g:iA", strtotime("$departTime"));
 
 			echo "<tr>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Train_Number]</td>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Month]&nbsp$row[Day]</td>";
+				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Month] $row[Day] $departTimeFormat - $arrivalTimeFormat</br>$hourDiff hrs $minDiff mins</td>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Departs_From]</td>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Arrives_At]</td>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Class]</td>";

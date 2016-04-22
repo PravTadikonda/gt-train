@@ -48,7 +48,7 @@ if(isset($_POST['trainNum'])) {
 		echo "</font>";
 	} else {
 		$sql = "SELECT Train_Number, Arrival_Time, Departure_Time, Location, Station.Name 
-				FROM (Stop JOIN Station) WHERE Train_Number=\"$trainNum\" AND Stop.Name = Station.Name";
+				FROM (Stop JOIN Station) WHERE Train_Number=\"$trainNum\" AND Stop.Name = Station.Name ORDER BY Departure_Time";
 		$result = mysql_query($sql) or die(mysql_error());
 		if (mysql_num_rows($result) == 0) {
 			echo "<font color=\"red\">";
@@ -63,6 +63,8 @@ if(isset($_POST['trainNum'])) {
 				echo "<td bgcolor=\"#e6f3ff\"><center/><font size=\"4\"/><b/>Station</td>";
 			echo "</tr>";
 			$prevTrainNum = "";
+			$rowNum = 0;
+			$colLength = mysql_num_rows($result);
 			while($row = mysql_fetch_array($result)) {
 				$arrivalTimeFormat = DATE("g:i A", strtotime("$row[Arrival_Time]"));
 				$departTimeFormat = DATE("g:i A", strtotime("$row[Departure_Time]"));
@@ -73,12 +75,23 @@ if(isset($_POST['trainNum'])) {
 					} else {
 						echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
 					}
-					//put the name with the location
-					echo "<td bgcolor=\"#e6f3ff\"><center/>$arrivalTimeFormat</td>";
-					echo "<td bgcolor=\"#e6f3ff\"><center/>$departTimeFormat</td>";
+					if ($rowNum !== 0) {
+						echo "<td bgcolor=\"#e6f3ff\"><center/>$arrivalTimeFormat</td>";
+					} else {
+						echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
+					}
+					if ($rowNum !== $colLength - 1) {
+						echo "<td bgcolor=\"#e6f3ff\"><center/>$departTimeFormat</td>";
+					} else {
+						echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
+					}
+					// if ($rowNum == $colLength or $rowNum !== 0) {
+					// 	echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
+					// }
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Location]($row[Name])</td>";
 				echo "</tr>";
 				$prevTrainNum = $row["Train_Number"];
+				$rowNum++;
 			}
 		}
 		echo "</table>";

@@ -41,7 +41,7 @@ $result2 = mysql_query($sql2) or die(mysql_error());
 
 if(mysql_num_rows($result2) == 0) {
     echo "<font color=\"red\">";
-    echo "You cannot make those reservations with those stops.";
+    echo "There are no trains that run between these stops.";
     echo "</font>";
     echo "</br></br>";
     echo "<a href=\"./MakeReservation1.php\"><button type=\"button\">Back</button></a>";

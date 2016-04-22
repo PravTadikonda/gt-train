@@ -68,6 +68,7 @@ if(isset($_POST['trainNum'],$_POST['rating'])) {
 	} else {
 		$sql = "SELECT Train_Number FROM Train_Route WHERE Train_Number = \"$trainNum\"";
 		$result = mysql_query($sql) or die(mysql_error());
+
 		if (mysql_num_rows($result) !== 1) {
 			echo "<font color=\"red\">";
 			echo "This train number does not exist";
@@ -75,7 +76,7 @@ if(isset($_POST['trainNum'],$_POST['rating'])) {
 		} else {
 			$reviewNum = rand(100000, 999999);
 	        $numList = array();
-	        $sql2 = "SELECT Review_Num FROM Reservation";
+	        $sql2 = "SELECT Review_Num FROM Review";
 	        $result2 = mysql_query($sql2) or die();
 	        while ($row = mysql_fetch_array($result2)) {
 	            $numList[] = $row[0];

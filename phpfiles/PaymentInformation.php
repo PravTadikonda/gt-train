@@ -115,6 +115,8 @@ echo "<table>";
 		echo "</td>";
 	echo "</tr>";
 echo "</table>";
+echo "</br></br>";
+echo "<a href=\"./MakeReservation3.php\"><button type=\"button\">Back</button></a>";
 
 if(isset($_POST["addCard"])) {
 	$user = $_SESSION['userID'];
