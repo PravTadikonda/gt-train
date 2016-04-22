@@ -106,7 +106,11 @@ if(isset($_POST['reservationID'])) {
 			echo "</tr>";
 			$rowNum = 1;
 			while($row = mysql_fetch_array($result2)) {
-		        $sql3 = "SELECT hour(timediff(\"$row[3]\", \"$row[2]\")), minute(timediff(\"$row[3]\", \"$row[2]\"))";
+				if ($row[2] > $row[3]) {
+					$sql3 = "SELECT hour(timediff(\"-24:00:00\", timediff(\"$row[3]\", \"$row[2]\"))), minute(timediff(\"-24:00:00\", timediff(\"$row[3]\", \"$row[2]\")))";
+				} else {
+					$sql3 = "SELECT hour(timediff(\"$row[3]\", \"$row[2]\")), minute(timediff(\"$row[3]\", \"$row[2]\"))";
+				}
 		        $result3 = mysql_query($sql3) or die(mysql_error());
 		        $difference = mysql_fetch_array($result3);
 		        $hourDiff = $difference[0];
@@ -186,7 +190,7 @@ if(isset($_POST["reserve"])) {
 
 	if ($difference < 1) {
 		echo "<font color=\"red\">";
-		echo "You cannot selected reservation";
+		echo "You cannot update selected reservation";
 		echo "</font>";
 	} else {
 		echo "<script type=\"text/javascript\">";

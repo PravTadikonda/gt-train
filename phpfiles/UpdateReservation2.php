@@ -38,8 +38,11 @@ $departDay = $_SESSION['departDay'];
 date_default_timezone_set('America/New_York');
 mysql_connect($host,$username,$password) or die("Unable to connect");
 mysql_select_db($database) or die("Unable to select database");
-
-$sql = "SELECT hour(timediff(\"$departTime\", \"$arriveTime\")), minute(timediff(\"$departTime\", \"$arriveTime\"))";
+if($departTime > $arriveTime) {
+	$sql = "SELECT hour(timediff(\"-24:00:00\", timediff(\"$arriveTime\", \"$departTime\"))), minute(timediff(\"-24:00:00\", timediff(\"$arriveTime\", \"$departTime\")))";
+} else {
+	$sql = "SELECT hour(timediff(\"$departTime\", \"$arriveTime\")), minute(timediff(\"$departTime\", \"$arriveTime\"))";	
+}
 $result = mysql_query($sql) or die(mysql_error());
 $difference = mysql_fetch_array($result);
 $hourDiff = $difference[0];

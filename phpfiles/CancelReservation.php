@@ -62,6 +62,11 @@ if(isset($_POST["reservationID"])) {
 			AND Reserves.Reservation_ID = \"$reservationID\" AND Is_Cancelled =\"0\"";
 	$result4 = mysql_query($sql4) or die(mysql_error());
 
+	$sql9 = "CREATE OR REPLACE VIEW reservStation AS (SELECT Location, Stop.Train_Number, Arrival_Time,
+			Departure_Time, First_Class_Price, Second_Class_Price FROM Stop JOIN Train_Route NATURAL JOIN Station 
+			WHERE Stop.Train_Number = Train_Route.Train_Number AND Station.Name = Stop.Name)";
+	mysql_query($sql9) or die(mysql_error());
+
 	if(mysql_num_rows($result) == 0) {
 		echo "<font color=\"red\">";
 		echo "This reservation ID does not exist for you.";
@@ -124,7 +129,7 @@ if(isset($_POST["reservationID"])) {
 
 			echo "<tr>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Train_Number]</td>";
-				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Month] $row[Day] $departTimeFormat - $arrivalTimeFormat</br>$hourDiff hrs $minDiff mins</td>";
+				echo "<td bgcolor=\"#e6f3ff\">$row[Month] $row[Day] $departTimeFormat - $arrivalTimeFormat</br>$hourDiff hrs $minDiff mins</td>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Departs_From]</td>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Arrives_At]</td>";
 				echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Class]</td>";

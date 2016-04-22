@@ -115,7 +115,7 @@ echo "<table>";
 		echo "</td>";
 	echo "</tr>";
 echo "</table>";
-echo "</br></br>";
+echo "</br>";
 echo "<a href=\"./MakeReservation3.php\"><button type=\"button\">Back</button></a>";
 
 if(isset($_POST["addCard"])) {
@@ -181,13 +181,19 @@ if(isset($_POST["deleteCard"])) {
 		mysql_connect($host,$username,$password) or die("Unable to connect");
 		mysql_select_db($database) or die("Unable to select database");
 
-		//get biggest placeholder value
-		$sql = "";
+		$sql = "SELECT * FROM PaymentInfo WHERE Card_Number=\"$cardNum\"";
 		$result = mysql_query($sql) or die(mysql_error());
-		$placeholder = ""; // *testing*
+		$info = mysql_fetch_array($result);
+		$oldCVV = $info[2];
+		$oldExpDate = $info[3];
+		$oldNameOnCard = $info[4];
 
-		if($placeholder == "") {
-			$placeholder = "placeholder000000";
+		$sql2 = "SELECT MAX(Card_Number) from PaymentInfo WHERE Card_Number LIKE \"placeholder%\"";
+		$result2 = mysql_query($sql2) or die(mysql_error());
+		$placeholder = mysql_fetch_array($result2)[0];
+
+		if(empty($placeholder)) {
+			$placeholder = "placeholder00000";
 		} else {
 			$holderVal = intval(str_replace("placeholder", "", "$placeholder"));
 			$holderVal++;
@@ -195,17 +201,29 @@ if(isset($_POST["deleteCard"])) {
 			$placeholder = "placeholder" . $holderVal;
 		}	
 		
-		//get departure dates that > today for given cardnum & user
-		$sql2 = "";
+		$sql2 = "SELECT card_number, reservation_id, departure_date from paymentinfo natural join reservation 
+		natural join reserves where paymentinfo.card_number = reservation.card_number 
+		and reservation.reservation_id = reserves.reservation_id and card_number=\"$cardNum\" 
+		and departure_date > curdate()";
 		$result2 = mysql_query($sql2) or die(mysql_error());
 		if (mysql_num_rows($result2) > 0) {
+			echo "</br></br>";
 			echo "<font color=\"red\">";
 			echo "You have future reservations for this card";
 			echo "</font>";
 		} else {
-			//update what you need to 
-			$sql3 = "";
+			$sql3 = "INSERT into paymentinfo (cust_user, card_number, cvv, exp_date, name_on_card) 
+			values (\"$user\", \"$placeholder\",\"$oldCVV\", \"$oldExpDate\",\"$oldNameOnCard\")";
 			mysql_query($sql3) or die(mysql_error());
+
+			$sql4 = "SELECT reservation_id from reservation where card_number=\"$cardNum\"";
+			$result4 = mysql_query($sql4) or die(mysql_error());
+			while($row = mysql_fetch_array($result4)) {
+				$sql5 = "UPDATE reservation set card_number=\"$placeholder\" WHERE reservation_id=\"$row[0]\"";
+				mysql_query($sql5) or die(mysql_error());
+			}
+			$sql6 = "DELETE FROM paymentinfo WHERE card_number=\"$cardNum\"";
+			mysql_query($sql6) or die(mysql_error());
 
 			echo "<script type=\"text/javascript\">";
 		    echo "window.top.location=\"./MakeReservation3.php\"";

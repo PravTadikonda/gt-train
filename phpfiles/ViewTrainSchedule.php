@@ -85,9 +85,6 @@ if(isset($_POST['trainNum'])) {
 					} else {
 						echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
 					}
-					// if ($rowNum == $colLength or $rowNum !== 0) {
-					// 	echo "<td bgcolor=\"#e6f3ff\"><center/></td>";
-					// }
 					echo "<td bgcolor=\"#e6f3ff\"><center/>$row[Location]($row[Name])</td>";
 				echo "</tr>";
 				$prevTrainNum = $row["Train_Number"];
